@@ -314,12 +314,14 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
           <p className="text-muted-foreground font-medium">Kelola dan pantau semua listing Anda.</p>
         </div>
         <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-          <DialogTrigger asChild>
-            <Button size="lg" className="rounded-2xl font-bold shadow-lg shadow-primary/20">
-              <Plus className="mr-2 h-5 w-5" />
-              Tambah Properti
-            </Button>
-          </DialogTrigger>
+          <DialogTrigger
+            render={
+              <Button size="lg" className="rounded-2xl font-bold shadow-lg shadow-primary/20">
+                <Plus className="mr-2 h-5 w-5" />
+                Tambah Properti
+              </Button>
+            }
+          />
           <DialogContent className="sm:max-w-[650px] rounded-[2rem]">
             <DialogHeader>
               <DialogTitle className="text-2xl font-black">Properti Baru</DialogTitle>
@@ -418,16 +420,18 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
                 <TableCell className="text-right px-6">
                   <div className="flex justify-end gap-1">
                     <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary"
-                          onClick={() => setEditingProperty(property)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      </DialogTrigger>
+                      <DialogTrigger
+                        render={
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary"
+                            onClick={() => setEditingProperty(property)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        }
+                      />
                       <DialogContent className="sm:max-w-[650px] rounded-[2rem]">
                         <DialogHeader>
                           <DialogTitle className="text-2xl font-black">Edit Listing</DialogTitle>
@@ -476,11 +480,13 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
               <span className="font-black text-primary">{formatCurrency(Number(property.price))}</span>
               <div className="flex gap-2">
                 <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-10 w-10 p-0 rounded-xl" onClick={() => setEditingProperty(property)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                  </DialogTrigger>
+                  <DialogTrigger
+                    render={
+                      <Button variant="outline" size="sm" className="h-10 w-10 p-0 rounded-xl" onClick={() => setEditingProperty(property)}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    }
+                  />
                   <DialogContent className="sm:max-w-[650px] w-[95vw] rounded-[2rem]">
                     <DialogHeader>
                       <DialogTitle className="text-xl font-bold">Edit Listing</DialogTitle>
