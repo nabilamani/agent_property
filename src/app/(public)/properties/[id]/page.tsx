@@ -67,7 +67,7 @@ export default async function PropertyDetailPage({
             {images.length > 1 ? (
               <Carousel className="w-full">
                 <CarouselContent>
-                  {images.map((img, idx) => (
+                  {images.map((img: string, idx: number) => (
                     <CarouselItem key={idx}>
                       <div className="relative aspect-[4/3] w-full md:aspect-[16/9]">
                         <Image

@@ -80,6 +80,13 @@ export function AgentProfileForm({ agent }: { agent: AgentData }) {
     }
   };
 
+  const resetPhotoPreview = () => {
+    setPreviewUrl(agent.photo);
+    setSelectedFile(null);
+    const input = document.getElementById("photo") as HTMLInputElement;
+    if (input) input.value = "";
+  };
+
   const resetLogoPreview = () => {
     setLogoPreviewUrl(agent.logo);
     setSelectedLogoFile(null);
@@ -159,7 +166,7 @@ export function AgentProfileForm({ agent }: { agent: AgentData }) {
                 {selectedFile && (
                   <button
                     type="button"
-                    onClick={resetPreview}
+                    onClick={resetPhotoPreview}
                     className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                     title="Batalkan perubahan"
                   >
