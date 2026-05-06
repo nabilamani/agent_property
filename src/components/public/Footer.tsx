@@ -16,7 +16,7 @@ export function Footer() {
                   Agent<span className="text-primary">Pro</span>
                 </span>
                 <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
-                  Property Expert
+                  Property Soloraya
                 </span>
               </div>
             </Link>

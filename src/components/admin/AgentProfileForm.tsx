@@ -16,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { toast } from "sonner";
 import { updateAgent } from "@/app/actions/agent";
 
 interface AgentData {
@@ -30,7 +31,6 @@ interface AgentData {
 export function AgentProfileForm({ agent }: { agent: AgentData }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   
   // Photo preview state
   const [previewUrl, setPreviewUrl] = useState<string | null>(agent.photo);
@@ -54,11 +54,10 @@ export function AgentProfileForm({ agent }: { agent: AgentData }) {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > MAX_FILE_SIZE) {
-        setMessage({ type: "error", text: "Ukuran file terlalu besar! Maksimal 2MB." });
+        toast.error("Ukuran file terlalu besar! Maksimal 2MB.");
         e.target.value = ""; // Clear input
         return;
       }
-      setMessage(null);
       setSelectedFile(file);
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
@@ -69,11 +68,10 @@ export function AgentProfileForm({ agent }: { agent: AgentData }) {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > MAX_FILE_SIZE) {
-        setMessage({ type: "error", text: "Ukuran logo terlalu besar! Maksimal 2MB." });
+        toast.error("Ukuran logo terlalu besar! Maksimal 2MB.");
         e.target.value = "";
         return;
       }
-      setMessage(null);
       setSelectedLogoFile(file);
       const url = URL.createObjectURL(file);
       setLogoPreviewUrl(url);
@@ -96,7 +94,6 @@ export function AgentProfileForm({ agent }: { agent: AgentData }) {
 
   async function handleSubmit(formData: FormData) {
     setSaving(true);
-    setMessage(null);
     
     // Ensure the selected files are in the formData if they were changed
     if (selectedFile) {
@@ -106,222 +103,189 @@ export function AgentProfileForm({ agent }: { agent: AgentData }) {
       formData.set("logo", selectedLogoFile);
     }
 
-    const result = await updateAgent(formData);
-    setSaving(false);
-
-    if (result?.error) {
-      setMessage({ type: "error", text: result.error });
-    } else {
-      setMessage({ type: "success", text: "Profil berhasil disimpan!" });
-      router.refresh();
+    try {
+      const result = await updateAgent(formData);
+      if (result?.error) {
+        toast.error(result.error);
+      } else {
+        toast.success("Profil berhasil diperbarui!");
+        router.refresh();
+      }
+    } catch (e) {
+      toast.error("Gagal menyimpan profil");
+    } finally {
+      setSaving(false);
     }
   }
 
-  // Use a key derived from agent data to force re-render when data changes
-  // This prevents the Base UI "changing default value of uncontrolled component" warning
   const formKey = `${agent.name}-${agent.phone}`;
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Profil Agent</h1>
-        <p className="text-muted-foreground">
-          Kelola informasi publik Anda yang akan ditampilkan kepada calon pembeli.
+    <div className="max-w-5xl mx-auto px-4">
+      <div className="mb-10 text-center md:text-left">
+        <h1 className="text-4xl font-extrabold tracking-tight mb-2">Profil Agent</h1>
+        <p className="text-muted-foreground text-lg max-w-2xl">
+          Kelola informasi publik dan identitas visual Anda untuk menarik lebih banyak calon pembeli.
         </p>
       </div>
 
-      {message && (
-        <div
-          className={`mb-6 rounded-lg p-3 text-sm border ${
-            message.type === "success"
-              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
-              : "bg-destructive/10 border-destructive/20 text-destructive"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
-
       <form action={handleSubmit} key={formKey}>
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          <div className="space-y-8">
-          {/* Photo Section */}
-          <Card className="md:col-span-1 border-none shadow-sm bg-transparent">
-            <CardHeader className="px-0">
-              <CardTitle>Foto Profil</CardTitle>
-              <CardDescription>
-                Foto ini akan ditampilkan di semua listing properti Anda.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-0 flex flex-col items-center">
-              <div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-background shadow-lg mb-6 group">
-                {previewUrl ? (
-                  <Image src={previewUrl} alt="Profile Photo" fill className="object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-primary/10 flex items-center justify-center text-6xl font-bold text-primary">
-                    {agent.name.charAt(0)}
-                  </div>
-                )}
+        <div className="grid gap-10 lg:grid-cols-12 items-start">
+          {/* Left Sidebar - Visuals */}
+          <div className="lg:col-span-4 space-y-6">
+            {/* Photo Section */}
+            <Card className="overflow-hidden border-border/50 shadow-sm bg-card/50 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl">Foto Profil</CardTitle>
+                <CardDescription>Format JPG/PNG, maks 2MB.</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col items-center">
+                <div className="relative w-40 h-40 rounded-full overflow-hidden ring-4 ring-background shadow-xl mb-6 group cursor-pointer transition-transform hover:scale-[1.02]">
+                  {previewUrl ? (
+                    <Image src={previewUrl} alt="Profile Photo" fill className="object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-primary/5 flex items-center justify-center text-5xl font-black text-primary/30">
+                      {agent.name.charAt(0)}
+                    </div>
+                  )}
+                  
+                  {selectedFile && (
+                    <button
+                      type="button"
+                      onClick={resetPhotoPreview}
+                      className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Batalkan perubahan"
+                    >
+                      <X className="text-white h-8 w-8" />
+                    </button>
+                  )}
+                </div>
                 
-                {selectedFile && (
-                  <button
-                    type="button"
-                    onClick={resetPhotoPreview}
-                    className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Batalkan perubahan"
-                  >
-                    <X className="text-white h-8 w-8" />
-                  </button>
-                )}
-              </div>
-              
-              <div className="w-full space-y-2">
-                <Label htmlFor="photo" className="cursor-pointer block">
-                  <div className="flex items-center justify-center gap-2 px-4 py-2 border rounded-md text-sm font-medium hover:bg-muted transition-colors w-full">
-                    <Upload className="h-4 w-4" />
-                    {selectedFile ? "Ganti Pilihan" : "Unggah Foto"}
-                  </div>
-                </Label>
-                <Input 
-                  id="photo" 
-                  name="photo" 
-                  type="file" 
-                  accept="image/*" 
-                  className="hidden" 
-                  onChange={handleFileChange}
-                />
-                
-                {selectedFile && (
-                  <p className="text-xs text-center text-primary font-medium animate-pulse">
-                    Pilihan baru: {selectedFile.name}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                <div className="w-full">
+                  <Label htmlFor="photo" className="cursor-pointer block">
+                    <div className="flex items-center justify-center gap-2 px-4 py-3 bg-primary/5 border border-primary/10 rounded-xl text-sm font-bold text-primary hover:bg-primary/10 transition-colors w-full">
+                      <Upload className="h-4 w-4" />
+                      {selectedFile ? "Ganti Foto" : "Unggah Foto"}
+                    </div>
+                  </Label>
+                  <Input id="photo" name="photo" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* Logo Section */}
-          <Card className="md:col-span-1 border-none shadow-sm bg-transparent">
-            <CardHeader className="px-0">
-              <CardTitle>Logo Properti</CardTitle>
-              <CardDescription>
-                Logo bisnis atau agensi properti Anda.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-0 flex flex-col items-center">
-              <div className="relative w-full aspect-video rounded-xl overflow-hidden border-2 border-dashed border-muted-foreground/20 bg-white shadow-inner mb-6 group flex items-center justify-center">
-                {logoPreviewUrl ? (
-                  <Image src={logoPreviewUrl} alt="Property Logo" fill className="object-contain p-4" />
-                ) : (
-                  <Building className="h-12 w-12 text-muted-foreground/40" />
-                )}
+            {/* Logo Section */}
+            <Card className="overflow-hidden border-border/50 shadow-sm bg-card/50 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl">Logo Bisnis</CardTitle>
+                <CardDescription>Tampil di kartu properti.</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col items-center">
+                <div className="relative w-full aspect-[2/1] rounded-2xl overflow-hidden border-2 border-dashed border-border bg-white shadow-inner mb-6 group flex items-center justify-center transition-all hover:border-primary/30">
+                  {logoPreviewUrl ? (
+                    <Image src={logoPreviewUrl} alt="Property Logo" fill className="object-contain p-6" />
+                  ) : (
+                    <Building className="h-10 w-10 text-muted-foreground/20" />
+                  )}
+                  
+                  {selectedLogoFile && (
+                    <button
+                      type="button"
+                      onClick={resetLogoPreview}
+                      className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Batalkan perubahan"
+                    >
+                      <X className="text-white h-8 w-8" />
+                    </button>
+                  )}
+                </div>
                 
-                {selectedLogoFile && (
-                  <button
-                    type="button"
-                    onClick={resetLogoPreview}
-                    className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Batalkan perubahan"
-                  >
-                    <X className="text-white h-8 w-8" />
-                  </button>
-                )}
-              </div>
-              
-              <div className="w-full space-y-2">
-                <Label htmlFor="logo" className="cursor-pointer block">
-                  <div className="flex items-center justify-center gap-2 px-4 py-2 border rounded-md text-sm font-medium hover:bg-muted transition-colors w-full">
-                    <Upload className="h-4 w-4" />
-                    {selectedLogoFile ? "Ganti Logo" : "Unggah Logo"}
-                  </div>
-                </Label>
-                <Input 
-                  id="logo" 
-                  name="logo" 
-                  type="file" 
-                  accept="image/*" 
-                  className="hidden" 
-                  onChange={handleLogoChange}
-                />
-              </div>
-            </CardContent>
-          </Card>
+                <div className="w-full">
+                  <Label htmlFor="logo" className="cursor-pointer block">
+                    <div className="flex items-center justify-center gap-2 px-4 py-3 border border-border rounded-xl text-sm font-bold hover:bg-muted transition-colors w-full">
+                      <Upload className="h-4 w-4" />
+                      {selectedLogoFile ? "Ganti Logo" : "Unggah Logo"}
+                    </div>
+                  </Label>
+                  <Input id="logo" name="logo" type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Profile Details Form */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Informasi Personal</CardTitle>
-              <CardDescription>Pastikan data Anda selalu up-to-date.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nama Lengkap</Label>
-                <Input 
-                  id="name" 
-                  name="name" 
-                  defaultValue={agent.name} 
-                  required 
-                  key={`name-${agent.name}`}
-                />
-              </div>
+          {/* Right Content - Form Details */}
+          <div className="lg:col-span-8 space-y-6">
+            <Card className="border-border/50 shadow-sm overflow-hidden">
+              <CardHeader className="bg-muted/30 pb-8 pt-8 px-8 border-b">
+                <CardTitle className="text-2xl font-black tracking-tight">Detail Informasi</CardTitle>
+                <CardDescription className="text-base">Informasi ini akan dilihat langsung oleh calon pembeli.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-8 space-y-8">
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="space-y-2.5">
+                    <Label htmlFor="name" className="text-sm font-bold tracking-wide uppercase text-muted-foreground/80">Nama Lengkap</Label>
+                    <Input 
+                      id="name" 
+                      name="name" 
+                      defaultValue={agent.name} 
+                      className="h-12 text-base rounded-xl border-border/60 focus:ring-4 focus:ring-primary/10 transition-all"
+                      required 
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone">Nomor WhatsApp</Label>
-                <Input 
-                  id="phone" 
-                  name="phone" 
-                  defaultValue={agent.phone} 
-                  required 
-                  key={`phone-${agent.phone}`}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Gunakan format kode negara tanpa simbol +, contoh: 62812...
-                </p>
-              </div>
+                  <div className="space-y-2.5">
+                    <Label htmlFor="phone" className="text-sm font-bold tracking-wide uppercase text-muted-foreground/80">Nomor WhatsApp</Label>
+                    <Input 
+                      id="phone" 
+                      name="phone" 
+                      defaultValue={agent.phone} 
+                      className="h-12 text-base rounded-xl border-border/60 focus:ring-4 focus:ring-primary/10 transition-all"
+                      required 
+                    />
+                    <p className="text-[10px] font-bold text-muted-foreground/50 italic">Contoh: 628123456789</p>
+                  </div>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="caption">Caption / Tagline</Label>
-                <Input 
-                  id="caption" 
-                  name="caption" 
-                  defaultValue={agent.caption || ""} 
-                  placeholder="Contoh: Solusi Properti Modern & Terpercaya"
-                  key={`caption-${agent.caption}`}
-                />
-              </div>
+                <div className="space-y-2.5">
+                  <Label htmlFor="caption" className="text-sm font-bold tracking-wide uppercase text-muted-foreground/80">Tagline / Slogan</Label>
+                  <Input 
+                    id="caption" 
+                    name="caption" 
+                    defaultValue={agent.caption || ""} 
+                    placeholder="Contoh: Spesialis Rumah Mewah & Strategis"
+                    className="h-12 text-base rounded-xl border-border/60 focus:ring-4 focus:ring-primary/10 transition-all"
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="bio">Deskripsi Agent</Label>
-                <Textarea
-                  id="bio"
-                  name="bio"
-                  defaultValue={agent.bio || ""}
-                  placeholder="Tuliskan pengalaman dan spesialisasi Anda secara singkat."
-                  className="min-h-[150px]"
-                  key={`bio-${agent.bio}`}
-                />
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end border-t pt-6 bg-muted/20">
-              <Button type="submit" disabled={saving}>
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Menyimpan...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Simpan Perubahan
-                  </>
-                )}
-              </Button>
-            </CardFooter>
-          </Card>
+                <div className="space-y-2.5">
+                  <Label htmlFor="bio" className="text-sm font-bold tracking-wide uppercase text-muted-foreground/80">Biografi Profesional</Label>
+                  <Textarea
+                    id="bio"
+                    name="bio"
+                    defaultValue={agent.bio || ""}
+                    placeholder="Ceritakan pengalaman dan nilai tambah yang Anda tawarkan..."
+                    className="min-h-[200px] text-base rounded-2xl border-border/60 p-4 focus:ring-4 focus:ring-primary/10 transition-all resize-none"
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-end p-8 bg-muted/20 border-t gap-4">
+                <Button type="submit" size="xl" className="px-10 shadow-lg shadow-primary/20" disabled={saving}>
+                  {saving ? (
+                    <>
+                      <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+                      Menyimpan...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="mr-3 h-5 w-5" />
+                      Simpan Profil
+                    </>
+                  )}
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
         </div>
       </form>
     </div>
   );
 }
-

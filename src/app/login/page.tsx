@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 import { login } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,9 +19,17 @@ export default function LoginPage() {
   async function handleSubmit(formData: FormData) {
     setLoading(true);
     setError(null);
-    const result = await login(formData);
-    if (result?.error) {
-      setError(result.error);
+    try {
+      const result = await login(formData);
+      if (result?.error) {
+        setError(result.error);
+        toast.error(result.error);
+        setLoading(false);
+      } else {
+        toast.success("Login berhasil! Mengalihkan...");
+      }
+    } catch (e) {
+      toast.error("Terjadi kesalahan sistem");
       setLoading(false);
     }
   }

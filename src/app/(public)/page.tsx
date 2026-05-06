@@ -157,7 +157,7 @@ export default async function LandingPage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                Verified Property Expert
+                Verified Property Soloraya
               </div>
               
               <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
@@ -185,7 +185,7 @@ export default async function LandingPage() {
                       src={displayAgent.logo}
                       alt="Property Logo"
                       fill
-                      className="object-contain p-2"
+                      className="object-contain rounded-xl p-2"
                     />
                   </div>
                 )}
