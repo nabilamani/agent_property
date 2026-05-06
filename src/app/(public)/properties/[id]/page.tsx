@@ -12,7 +12,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
 import { getPropertyById } from "@/app/actions/properties";
 import { getAgent } from "@/app/actions/agent";
 import { PropertyTracker, WhatsAppTracker } from "@/components/public/PropertyTracker";
