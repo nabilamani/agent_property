@@ -28,14 +28,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import { createProperty, updateProperty, deleteProperty, deletePropertyImage } from "@/app/actions/properties";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu";
 
 interface PropertyRow {
   id: string;
