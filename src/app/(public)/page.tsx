@@ -111,6 +111,7 @@ export default async function LandingPage() {
                   price: Number(property.price),
                   images: getImages(property),
                 }}
+                agentPhone={displayAgent.phone}
               />
             ))}
           </div>

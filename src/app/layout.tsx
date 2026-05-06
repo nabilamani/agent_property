@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   description: "Temukan rumah, tanah, apartemen, dan properti impian Anda. Platform listing properti profesional dengan akses langsung ke agen terpercaya.",
 };
 
+import { SavedPropertiesProvider } from "@/context/SavedPropertiesContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,8 +27,10 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} h-full antialiased font-sans`}
     >
       <body className="min-h-full flex flex-col">
-        {children}
-        <Toaster position="top-center" richColors />
+        <SavedPropertiesProvider>
+          {children}
+        </SavedPropertiesProvider>
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

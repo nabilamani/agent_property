@@ -86,6 +86,9 @@ export async function createProperty(formData: FormData) {
     agent_whatsapp: formData.get("agent_whatsapp") as string,
     owner_whatsapp: (formData.get("owner_whatsapp") as string) || null,
     is_active: formData.get("is_active") === "true",
+    is_sold: formData.get("is_sold") === "true",
+    views_count: 0,
+    whatsapp_clicks_count: 0,
   };
 
   console.log("Creating property with data:", { ...propertyData, description: "..." });
@@ -133,6 +136,7 @@ export async function updateProperty(id: string, formData: FormData) {
     agent_whatsapp: formData.get("agent_whatsapp") as string,
     owner_whatsapp: (formData.get("owner_whatsapp") as string) || null,
     is_active: formData.get("is_active") === "true",
+    is_sold: formData.get("is_sold") === "true",
   };
 
   console.log("Updating property with data:", { id, ...propertyData, description: "..." });
@@ -283,4 +287,20 @@ export async function deletePropertyImage(imageId: string, imageUrl: string) {
 
   revalidatePath("/admin/properties");
   return { success: true };
+}
+
+// ============================================
+// TRACKING: Increment views or clicks
+// ============================================
+export async function incrementView(id: string) {
+  const supabase = await createClient();
+  
+  // Call the database function (RPC) to handle atomic increment
+  await supabase.rpc('increment_property_views', { property_id: id });
+}
+
+export async function incrementWhatsAppClick(id: string) {
+  const supabase = await createClient();
+  
+  await supabase.rpc('increment_property_whatsapp_clicks', { property_id: id });
 }

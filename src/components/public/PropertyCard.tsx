@@ -1,19 +1,30 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Expand, Home, ArrowRight, Phone } from "lucide-react";
+import { MapPin, Expand, Home, ArrowRight, Phone, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
 import type { Property } from "@/lib/supabase/types";
+import { PropertyTracker, WhatsAppTracker } from "@/components/public/PropertyTracker";
+import { WhatsAppIcon } from "@/components/icons/WhatsApp";
+import { useSavedProperties } from "@/context/SavedPropertiesContext";
 
 interface PropertyCardProps {
   property: Property & { images: string[] };
+  agentPhone?: string;
 }
 
-export function PropertyCard({ property }: PropertyCardProps) {
+export function PropertyCard({ property, agentPhone }: PropertyCardProps) {
+  const targetPhone = agentPhone || property.agent_whatsapp || "6281234567890";
+  const { isSaved, toggleSave } = useSavedProperties();
+  const saved = isSaved(property.id);
+  
   return (
     <Card className="overflow-hidden flex flex-col h-full group transition-all duration-500 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.1)] hover:-translate-y-1.5 border-border/40 bg-card/50 backdrop-blur-sm">
+      {/* ... (rest of the component) */}
       {/* Image Section */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <Link href={`/properties/${property.id}`} className="block h-full">
@@ -21,22 +32,49 @@ export function PropertyCard({ property }: PropertyCardProps) {
             src={property.images[0] || "/placeholder-property.jpg"}
             alt={property.title}
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-110"
+            className={cn(
+              "object-cover transition-transform duration-700 group-hover:scale-110",
+              property.is_sold && "grayscale-[0.5] opacity-80"
+            )}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         </Link>
         
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-          <Badge className="bg-primary/90 text-primary-foreground backdrop-blur-md border-none shadow-sm px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-            {property.type}
-          </Badge>
-          {property.condition && (
-            <Badge variant="secondary" className="bg-white/90 text-primary backdrop-blur-md border-none shadow-sm px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-              {property.condition}
-            </Badge>
-          )}
+        {/* Badges & Save Button */}
+        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+          <div className="flex flex-wrap gap-2">
+            {property.is_sold ? (
+              <Badge className="bg-rose-600 text-white border-none shadow-lg px-3 py-1 text-xs font-black uppercase tracking-widest animate-pulse">
+                TERJUAL
+              </Badge>
+            ) : (
+              <>
+                <Badge className="bg-primary/90 text-primary-foreground backdrop-blur-md border-none shadow-sm px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                  {property.type}
+                </Badge>
+                {property.condition && (
+                  <Badge variant="secondary" className="bg-white/90 text-primary backdrop-blur-md border-none shadow-sm px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                    {property.condition}
+                  </Badge>
+                )}
+              </>
+            )}
+          </div>
+          <Button
+            size="icon"
+            variant="secondary"
+            className={cn(
+              "h-8 w-8 rounded-full backdrop-blur-md border-none shadow-sm transition-all duration-300",
+              saved ? "bg-white text-rose-500 hover:text-rose-600 scale-110" : "bg-white/70 text-foreground hover:bg-white hover:scale-110"
+            )}
+            onClick={(e) => {
+              e.preventDefault();
+              toggleSave(property.id);
+            }}
+          >
+            <Heart className={cn("h-4 w-4", saved && "fill-current")} />
+          </Button>
         </div>
       </div>
       
@@ -94,21 +132,23 @@ export function PropertyCard({ property }: PropertyCardProps) {
               <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
-          <Button
-            asChild
-            variant="outline"
-            size="icon"
-            className="rounded-xl border-emerald-100 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 shrink-0 shadow-sm"
-            title="Hubungi via WhatsApp"
-          >
-            <a
-              href={`https://wa.me/${property.agent_whatsapp}?text=${encodeURIComponent(`Halo, saya tertarik dengan properti: ${property.title}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
+          <WhatsAppTracker id={property.id}>
+            <Button
+              asChild
+              variant="outline"
+              size="icon"
+              className="rounded-xl border-emerald-100 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 shrink-0 shadow-sm"
+              title="Hubungi via WhatsApp"
             >
-              <Phone className="h-4 w-4" />
-            </a>
-          </Button>
+              <a
+                href={`https://wa.me/${targetPhone}?text=${encodeURIComponent(`Halo, saya tertarik dengan properti: ${property.title}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <WhatsAppIcon className="h-4 w-4" />
+              </a>
+            </Button>
+          </WhatsAppTracker>
         </div>
       </div>
     </Card>

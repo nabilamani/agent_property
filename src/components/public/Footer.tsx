@@ -52,10 +52,10 @@ export function Footer() {
           <div>
             <h3 className="font-semibold text-foreground mb-4">Contact</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li>Jl. Contoh Properti No. 123</li>
-              <li>Jakarta Selatan, 12345</li>
-              <li>info@agentpro.com</li>
-              <li>+62 812 3456 7890</li>
+              <li>Jl. Mangga II No. 02/05</li>
+              <li>Surakarta, Palur 57745</li>
+              <li>soloraya@agentpro.com</li>
+              <li>+62 85728853831</li>
             </ul>
           </div>
         </div>

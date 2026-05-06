@@ -6,6 +6,9 @@ export default async function AdminDashboard() {
   const totalProperties = properties.length;
   const activeProperties = properties.filter((p: { is_active?: boolean }) => p.is_active).length;
 
+  const totalViews = properties.reduce((acc, p) => acc + (p.views_count || 0), 0);
+  const totalWhatsAppClicks = properties.reduce((acc, p) => acc + (p.whatsapp_clicks_count || 0), 0);
+
   const stats = [
     {
       title: "Total Properti",
@@ -21,15 +24,15 @@ export default async function AdminDashboard() {
     },
     {
       title: "Total Dilihat",
-      value: "1,240",
+      value: totalViews.toLocaleString(),
       icon: Users,
-      description: "+18% dari bulan lalu",
+      description: "Berdasarkan kunjungan halaman",
     },
     {
       title: "Prospek (WhatsApp)",
-      value: "45",
+      value: totalWhatsAppClicks.toLocaleString(),
       icon: TrendingUp,
-      description: "+12% dari bulan lalu",
+      description: "Klik pada tombol WhatsApp",
     },
   ];
 
@@ -90,7 +93,10 @@ export default async function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-8">
-              {properties.slice(0, 3).map((property, idx) => {
+              {[...properties]
+                .sort((a, b) => (b.views_count || 0) - (a.views_count || 0))
+                .slice(0, 4)
+                .map((property) => {
                 const imgUrl =
                   "property_images" in property &&
                   Array.isArray(property.property_images) &&
@@ -120,7 +126,7 @@ export default async function AdminDashboard() {
                       <p className="text-sm font-medium leading-none truncate">
                         {property.title}
                       </p>
-                      <p className="text-sm text-muted-foreground">{120 - idx * 20} views</p>
+                      <p className="text-xs text-muted-foreground font-bold italic">{(property.views_count || 0).toLocaleString()} views</p>
                     </div>
                   </div>
                 );

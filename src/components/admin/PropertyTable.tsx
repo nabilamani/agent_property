@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, Search, Loader2, Filter, ChevronDown, MoreHorizontal } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Loader2, Filter, ChevronDown, MoreHorizontal, ImagePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -51,8 +51,10 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
-  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
   const filtered = properties.filter((p) => {
     const matchesSearch = 
@@ -71,6 +73,36 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
   const truncateText = (text: string, length: number) => {
     return text.length > length ? text.substring(0, length) + "..." : text;
   };
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+
+    const validFiles: File[] = [];
+    const newPreviews: string[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`${file.name} terlalu besar (Max 5MB)`);
+        continue;
+      }
+      validFiles.push(file);
+      newPreviews.push(URL.createObjectURL(file));
+    }
+
+    setNewImages(prev => [...prev, ...validFiles]);
+    setPreviewUrls(prev => [...prev, ...newPreviews]);
+    
+    // Clear input so same file can be selected again
+    e.target.value = "";
+  }
+
+  function removeNewImage(index: number) {
+    URL.revokeObjectURL(previewUrls[index]);
+    setNewImages(prev => prev.filter((_, i) => i !== index));
+    setPreviewUrls(prev => prev.filter((_, i) => i !== index));
+  }
 
   async function handleDelete(id: string) {
     if (!confirm("Apakah Anda yakin ingin menghapus properti ini?")) return;
@@ -114,6 +146,11 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
     setSaving(true);
     setFormError(null);
     try {
+      // Append new images from state
+      newImages.forEach(file => {
+        formData.append("images", file);
+      });
+
       let result;
       if (editingProperty) {
         result = await updateProperty(editingProperty.id, formData);
@@ -126,8 +163,7 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
         toast.error(result.error);
       } else {
         toast.success(editingProperty ? "Properti berhasil diperbarui" : "Properti berhasil ditambahkan");
-        setEditingProperty(null);
-        setShowAddDialog(false);
+        closeDialog();
         router.refresh();
       }
     } catch (e) {
@@ -139,32 +175,42 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
     }
   }
 
+  function closeDialog() {
+    setEditingProperty(null);
+    setShowAddDialog(false);
+    // Cleanup previews
+    previewUrls.forEach(url => URL.revokeObjectURL(url));
+    setNewImages([]);
+    setPreviewUrls([]);
+    setFormError(null);
+  }
+
   function PropertyForm({ defaultValues }: { defaultValues?: any }) {
     const existingImages = defaultValues?.property_images || [];
 
     return (
-      <form action={handleFormSubmit} className="space-y-4 max-h-[75vh] overflow-y-auto pr-2 custom-scrollbar">
+      <div className="space-y-8">
         {formError && (
-          <div className="p-3 text-sm bg-destructive/10 border border-destructive/20 text-destructive rounded-xl font-medium">
+          <div className="p-4 text-sm bg-destructive/10 border border-destructive/20 text-destructive rounded-2xl font-medium animate-in fade-in slide-in-from-top-2">
             {formError}
           </div>
         )}
-        <div className="grid grid-cols-2 gap-5">
-          <div className="col-span-2 space-y-2">
-            <Label htmlFor="title" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Judul Properti *</Label>
-            <Input id="title" name="title" defaultValue={defaultValues?.title} className="h-11 rounded-xl" required />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+          <div className="md:col-span-2 space-y-2">
+            <Label htmlFor="title" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Judul Properti *</Label>
+            <Input id="title" name="title" defaultValue={defaultValues?.title} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="price" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Harga (IDR) *</Label>
-            <Input id="price" name="price" type="number" defaultValue={defaultValues?.price} className="h-11 rounded-xl" required />
+            <Label htmlFor="price" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Harga (IDR) *</Label>
+            <Input id="price" name="price" type="number" defaultValue={defaultValues?.price} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="type" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Tipe Properti *</Label>
+            <Label htmlFor="type" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Tipe Properti *</Label>
             <select
               id="type"
               name="type"
               defaultValue={defaultValues?.type || "Rumah"}
-              className="flex h-11 w-full rounded-xl border border-input bg-transparent px-3 py-1 text-sm transition-all focus:ring-4 focus:ring-primary/10"
+              className="flex h-12 w-full rounded-2xl bg-muted/20 border-transparent px-3 py-1 text-sm font-sans font-bold transition-all focus:ring-4 focus:ring-primary/10 outline-none focus:bg-background"
               required
             >
               <option value="Rumah">Rumah</option>
@@ -174,25 +220,25 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
               <option value="Apartemen">Apartemen</option>
             </select>
           </div>
-          <div className="col-span-2 space-y-2">
-            <Label htmlFor="address" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Alamat Lengkap *</Label>
-            <Input id="address" name="address" defaultValue={defaultValues?.address} className="h-11 rounded-xl" required />
+          <div className="md:col-span-2 space-y-2">
+            <Label htmlFor="address" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Alamat Lengkap *</Label>
+            <Input id="address" name="address" defaultValue={defaultValues?.address} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="land_area" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Luas Tanah (m²)</Label>
-            <Input id="land_area" name="land_area" type="number" defaultValue={defaultValues?.land_area || 0} className="h-11 rounded-xl" />
+            <Label htmlFor="land_area" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Luas Tanah (m²)</Label>
+            <Input id="land_area" name="land_area" type="number" defaultValue={defaultValues?.land_area || 0} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="building_area" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Luas Bangunan (m²)</Label>
-            <Input id="building_area" name="building_area" type="number" defaultValue={defaultValues?.building_area || 0} className="h-11 rounded-xl" />
+            <Label htmlFor="building_area" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Luas Bangunan (m²)</Label>
+            <Input id="building_area" name="building_area" type="number" defaultValue={defaultValues?.building_area || 0} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="condition" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Kondisi</Label>
+            <Label htmlFor="condition" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Kondisi Unit</Label>
             <select
               id="condition"
               name="condition"
               defaultValue={defaultValues?.condition || "Baru"}
-              className="flex h-11 w-full rounded-xl border border-input bg-transparent px-3 py-1 text-sm transition-all focus:ring-4 focus:ring-primary/10"
+              className="flex h-12 w-full rounded-2xl bg-muted/20 border-transparent px-3 py-1 text-sm font-sans font-bold transition-all focus:ring-4 focus:ring-primary/10 outline-none focus:bg-background"
             >
               <option value="Baru">Baru</option>
               <option value="Bekas">Bekas</option>
@@ -205,7 +251,7 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
               id="is_active"
               name="is_active"
               defaultValue={String(defaultValues?.is_active !== false)}
-              className={`flex h-11 w-full rounded-xl border px-3 py-1 text-sm font-bold transition-all focus:ring-4 focus:ring-primary/10 ${
+              className={`flex h-11 w-full rounded-xl border px-3 py-1 text-sm font-sans font-bold transition-all focus:ring-4 focus:ring-primary/10 outline-none ${
                 (defaultValues?.is_active !== false) ? "bg-emerald-50/50 border-emerald-200 text-emerald-700" : "bg-muted/50 border-border"
               }`}
             >
@@ -214,36 +260,49 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
             </select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="agent_whatsapp" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">WA Agent *</Label>
-            <Input id="agent_whatsapp" name="agent_whatsapp" defaultValue={defaultValues?.agent_whatsapp || "6281234567890"} className="h-11 rounded-xl" required />
+            <Label htmlFor="is_sold" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Status Penjualan</Label>
+            <select
+              id="is_sold"
+              name="is_sold"
+              defaultValue={String(defaultValues?.is_sold === true)}
+              className={`flex h-11 w-full rounded-xl border px-3 py-1 text-sm font-sans font-bold transition-all focus:ring-4 focus:ring-primary/10 outline-none ${
+                (defaultValues?.is_sold === true) ? "bg-rose-50/50 border-rose-200 text-rose-700" : "bg-emerald-50/50 border-emerald-200 text-emerald-700"
+              }`}
+            >
+              <option value="false">Tersedia</option>
+              <option value="true">Terjual</option>
+            </select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="owner_whatsapp" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">WA Owner (Opsional)</Label>
-            <Input id="owner_whatsapp" name="owner_whatsapp" defaultValue={defaultValues?.owner_whatsapp || ""} className="h-11 rounded-xl" />
+            <Label htmlFor="agent_whatsapp" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">WA Agent *</Label>
+            <Input id="agent_whatsapp" name="agent_whatsapp" defaultValue={defaultValues?.agent_whatsapp || "6281234567890"} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" required />
           </div>
-          <div className="col-span-2 space-y-2">
-            <Label htmlFor="map_url" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Google Maps Embed URL</Label>
+          <div className="space-y-2">
+            <Label htmlFor="owner_whatsapp" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">WA Owner (Opsional)</Label>
+            <Input id="owner_whatsapp" name="owner_whatsapp" defaultValue={defaultValues?.owner_whatsapp || ""} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" />
+          </div>
+          <div className="md:col-span-2 space-y-2">
+            <Label htmlFor="map_url" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Google Maps Embed URL</Label>
             <Input 
               id="map_url" 
               name="map_url" 
               defaultValue={defaultValues?.map_url || ""} 
               placeholder="Paste kode <iframe> atau URL maps di sini"
-              className="h-11 rounded-xl"
+              className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all"
             />
           </div>
-          <div className="col-span-2 space-y-2">
-            <Label htmlFor="description" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Deskripsi</Label>
+          <div className="md:col-span-2 space-y-2">
+            <Label htmlFor="description" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Deskripsi Properti</Label>
             <Textarea 
               id="description" 
               name="description" 
               defaultValue={defaultValues?.description || ""} 
-              className="min-h-[120px] rounded-2xl" 
+              className="min-h-[150px] rounded-3xl bg-muted/20 border-transparent focus:bg-background transition-all p-4" 
             />
           </div>
 
-          {/* Image Management Section */}
-          <div className="col-span-2 space-y-4">
-            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80">Manajemen Gambar</Label>
+          <div className="md:col-span-2 space-y-6 pt-4 border-t">
+            <Label className="text-sm font-black uppercase tracking-[0.15em] text-primary">Manajemen Media & Gambar</Label>
             
             {/* Existing Images */}
             {existingImages.length > 0 && (
@@ -268,40 +327,44 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
               </div>
             )}
 
-            <div className="space-y-2">
-              <Label htmlFor="images" className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+            {/* Images for Upload */}
+            <div className="space-y-3">
+              <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                 {existingImages.length > 0 ? "Tambah Gambar Baru" : "Upload Gambar"}
               </Label>
-              <Input 
-                id="images" 
-                name="images" 
-                type="file" 
-                accept="image/*" 
-                multiple 
-                className="rounded-xl h-auto py-2 file:bg-primary/5 file:text-primary file:font-bold file:border-none file:rounded-md cursor-pointer"
-                onChange={(e) => {
-                  const files = e.target.files;
-                  if (files) {
-                    for (let i = 0; i < files.length; i++) {
-                      if (files[i].size > MAX_FILE_SIZE) {
-                        toast.error(`File "${files[i].name}" terlalu besar!`);
-                        e.target.value = ""; 
-                        return;
-                      }
-                    }
-                  }
-                }}
-              />
+              
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                {previewUrls.map((url, index) => (
+                  <div key={url} className="relative aspect-square rounded-xl overflow-hidden group border-2 border-primary/20 shadow-sm animate-in zoom-in">
+                    <Image src={url} alt="Preview" fill className="object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeNewImage(index)}
+                      className="absolute top-1 right-1 h-6 w-6 bg-rose-500 text-white rounded-md flex items-center justify-center shadow-lg hover:bg-rose-600 transition-colors"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+                
+                <label className="relative aspect-square rounded-xl border-2 border-dashed border-muted-foreground/20 hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group">
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileChange}
+                  />
+                  <div className="p-2 bg-primary/10 rounded-full group-hover:scale-110 transition-transform">
+                    <ImagePlus className="h-5 w-5 text-primary" />
+                  </div>
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Tambah</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
-        <DialogFooter className="pt-4">
-          <Button type="submit" size="lg" className="w-full sm:w-auto rounded-xl font-bold" disabled={saving || !!formError}>
-            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {editingProperty ? "Simpan Perubahan" : "Tambah Properti"}
-          </Button>
-        </DialogFooter>
-      </form>
+      </div>
     );
   }
 
@@ -322,12 +385,37 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
               </Button>
             }
           />
-          <DialogContent className="sm:max-w-[650px] rounded-[2rem]">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-black">Properti Baru</DialogTitle>
-              <DialogDescription>Masukkan detail unit yang akan dipasarkan.</DialogDescription>
-            </DialogHeader>
-            <PropertyForm />
+          <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] overflow-y-auto rounded-[2rem] p-0 border-none shadow-2xl bg-background custom-scrollbar overflow-x-hidden">
+            <div className="p-10 md:p-14">
+              <DialogHeader className="mb-10">
+                <DialogTitle className="text-4xl font-black tracking-tight text-foreground">
+                  {editingProperty ? "Edit Properti" : "Properti Baru"}
+                </DialogTitle>
+                <DialogDescription className="text-lg font-medium text-muted-foreground/80 mt-2">
+                  {editingProperty ? "Perbarui detail unit properti Anda." : "Masukkan detail unit yang akan dipasarkan."}
+                </DialogDescription>
+              </DialogHeader>
+
+              <form action={handleFormSubmit} className="space-y-10">
+                <PropertyForm defaultValues={editingProperty} />
+                
+                <div className="flex flex-col sm:flex-row justify-end gap-4 pt-10 border-t">
+                  <Button type="button" variant="ghost" onClick={closeDialog} className="rounded-2xl h-14 px-10 font-bold text-base hover:bg-muted">
+                    Batal
+                  </Button>
+                  <Button type="submit" disabled={saving} className="rounded-2xl h-14 px-14 font-bold text-base shadow-2xl shadow-primary/30">
+                    {saving ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Menyimpan...
+                      </>
+                    ) : (
+                      editingProperty ? "Simpan Perubahan" : "Terbitkan Properti"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
@@ -347,7 +435,7 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
         <div className="flex items-center gap-2 px-3 h-12 bg-background rounded-2xl shadow-inner border border-transparent focus-within:border-primary/20 transition-all">
           <Filter className="h-4 w-4 text-primary/40" />
           <select 
-            className="bg-transparent text-sm font-bold w-full focus:outline-none cursor-pointer"
+            className="bg-transparent text-sm font-sans font-bold w-full focus:outline-none cursor-pointer"
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
           >
@@ -363,7 +451,7 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
         <div className="flex items-center gap-2 px-3 h-12 bg-background rounded-2xl shadow-inner border border-transparent focus-within:border-primary/20 transition-all">
           <div className={`h-2 w-2 rounded-full ${statusFilter === "Aktif" ? "bg-emerald-500" : statusFilter === "Nonaktif" ? "bg-gray-400" : "bg-primary/40"}`} />
           <select 
-            className="bg-transparent text-sm font-bold w-full focus:outline-none cursor-pointer"
+            className="bg-transparent text-sm font-sans font-bold w-full focus:outline-none cursor-pointer"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -419,27 +507,17 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
                 </TableCell>
                 <TableCell className="text-right px-6">
                   <div className="flex justify-end gap-1">
-                    <Dialog>
-                      <DialogTrigger
-                        render={
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary"
-                            onClick={() => setEditingProperty(property)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        }
-                      />
-                      <DialogContent className="sm:max-w-[650px] rounded-[2rem]">
-                        <DialogHeader>
-                          <DialogTitle className="text-2xl font-black">Edit Listing</DialogTitle>
-                          <DialogDescription>Update detail properti pilihan Anda.</DialogDescription>
-                        </DialogHeader>
-                        <PropertyForm defaultValues={property} />
-                      </DialogContent>
-                    </Dialog>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary"
+                      onClick={() => {
+                        setEditingProperty(property);
+                        setShowAddDialog(true);
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -479,21 +557,17 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
             <div className="flex items-center justify-between pt-2 border-t border-border/40">
               <span className="font-black text-primary">{formatCurrency(Number(property.price))}</span>
               <div className="flex gap-2">
-                <Dialog>
-                  <DialogTrigger
-                    render={
-                      <Button variant="outline" size="sm" className="h-10 w-10 p-0 rounded-xl" onClick={() => setEditingProperty(property)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    }
-                  />
-                  <DialogContent className="sm:max-w-[650px] w-[95vw] rounded-[2rem]">
-                    <DialogHeader>
-                      <DialogTitle className="text-xl font-bold">Edit Listing</DialogTitle>
-                    </DialogHeader>
-                    <PropertyForm defaultValues={property} />
-                  </DialogContent>
-                </Dialog>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-10 w-10 p-0 rounded-xl" 
+                  onClick={() => {
+                    setEditingProperty(property);
+                    setShowAddDialog(true);
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
                 <Button 
                   variant="outline" 
                   size="sm" 

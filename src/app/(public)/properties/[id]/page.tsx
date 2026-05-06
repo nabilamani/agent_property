@@ -15,6 +15,10 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { getPropertyById } from "@/app/actions/properties";
 import { getAgent } from "@/app/actions/agent";
+import { PropertyTracker, WhatsAppTracker } from "@/components/public/PropertyTracker";
+
+import { WhatsAppIcon } from "@/components/icons/WhatsApp";
+
 export default async function PropertyDetailPage({
   params,
 }: {
@@ -34,8 +38,6 @@ export default async function PropertyDetailPage({
     photo: null,
   };
 
-  if (!property) notFound();
-
   const agentName = agent?.name || "Agent";
   const agentPhone = agent?.phone || "6281234567890";
   const agentPhoto = agent?.photo || null;
@@ -45,6 +47,7 @@ export default async function PropertyDetailPage({
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <PropertyTracker id={id} />
       {/* Breadcrumb / Back Navigation */}
       <div className="mb-6 flex items-center justify-between">
         <Button variant="ghost" asChild className="-ml-4">
@@ -90,7 +93,7 @@ export default async function PropertyDetailPage({
                   src={images[0]}
                   alt={property.title}
                   fill
-                  className="object-cover"
+                  className={cn("object-cover", property.is_sold && "grayscale-[0.5] opacity-80")}
                   priority
                 />
               </div>
@@ -102,10 +105,32 @@ export default async function PropertyDetailPage({
           </div>
 
           {/* Property Header */}
-          <div>
-            <div className="flex flex-wrap gap-2 mb-3">
-              <Badge className="bg-primary text-primary-foreground">{property.type}</Badge>
-              <Badge variant="outline">Kondisi: {property.condition}</Badge>
+          <div className="bg-card rounded-3xl p-6 sm:p-8 shadow-sm border border-border/40 relative overflow-hidden">
+            {property.is_sold && (
+              <div className="absolute top-0 right-0">
+                <div className="bg-rose-600 text-white px-10 py-1 rotate-45 translate-x-8 translate-y-4 shadow-lg text-xs font-black uppercase tracking-[0.2em]">
+                  Terjual
+                </div>
+              </div>
+            )}
+            
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              {property.is_sold ? (
+                <Badge className="bg-rose-600 text-white border-none px-3 py-1 text-xs font-black uppercase tracking-widest">
+                  UNIT TERJUAL
+                </Badge>
+              ) : (
+                <>
+                  <Badge className="bg-primary/10 text-primary border-none px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                    {property.type}
+                  </Badge>
+                  {property.condition && (
+                    <Badge variant="secondary" className="bg-secondary text-secondary-foreground border-none px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                      {property.condition}
+                    </Badge>
+                  )}
+                </>
+              )}
             </div>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
               {property.title}
@@ -215,23 +240,27 @@ export default async function PropertyDetailPage({
               </div>
 
               <div className="space-y-3">
-                <Button size="lg" className="w-full h-14 rounded-2xl text-base font-bold shadow-lg shadow-primary/20" asChild>
-                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                    <Phone className="mr-2 h-5 w-5" />
-                    Chat WhatsApp
-                  </a>
-                </Button>
-                {property.owner_whatsapp && (
-                  <Button size="lg" variant="outline" className="w-full h-14 rounded-2xl text-base font-semibold border-border/50" asChild>
-                    <a
-                      href={`https://wa.me/${property.owner_whatsapp}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Phone className="mr-2 h-5 w-5" />
-                      Hubungi Pemilik
+                <WhatsAppTracker id={id}>
+                  <Button size="lg" className="w-full h-14 rounded-2xl text-base font-bold shadow-lg shadow-primary/20" asChild>
+                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                      <WhatsAppIcon className="mr-2 h-5 w-5" />
+                      Chat WhatsApp
                     </a>
                   </Button>
+                </WhatsAppTracker>
+                {property.owner_whatsapp && (
+                  <WhatsAppTracker id={id}>
+                    <Button size="lg" variant="outline" className="w-full h-14 rounded-2xl text-base font-semibold border-border/50" asChild>
+                      <a
+                        href={`https://wa.me/${property.owner_whatsapp}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <WhatsAppIcon className="mr-2 h-5 w-5" />
+                        Hubungi Pemilik
+                      </a>
+                    </Button>
+                  </WhatsAppTracker>
                 )}
               </div>
 

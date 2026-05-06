@@ -36,9 +36,33 @@ CREATE TABLE IF NOT EXISTS properties (
   agent_whatsapp TEXT NOT NULL,
   owner_whatsapp TEXT,
   is_active BOOLEAN DEFAULT TRUE,
+  is_sold BOOLEAN DEFAULT FALSE,
+  views_count INT DEFAULT 0,
+  whatsapp_clicks_count INT DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ============================================
+-- RPC Functions for Analytics
+-- ============================================
+CREATE OR REPLACE FUNCTION increment_property_views(id UUID)
+RETURNS void AS $$
+BEGIN
+  UPDATE properties
+  SET views_count = views_count + 1
+  WHERE properties.id = increment_property_views.id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION increment_property_whatsapp_clicks(id UUID)
+RETURNS void AS $$
+BEGIN
+  UPDATE properties
+  SET whatsapp_clicks_count = whatsapp_clicks_count + 1
+  WHERE properties.id = increment_property_whatsapp_clicks.id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ============================================
 -- Table: property_images

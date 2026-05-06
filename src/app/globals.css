@@ -127,6 +127,9 @@
   html {
     @apply font-sans;
   }
+  select, option {
+    font-family: var(--font-plus-jakarta), sans-serif !important;
+  }
 }
 
 /* ====== Custom Animations ====== */

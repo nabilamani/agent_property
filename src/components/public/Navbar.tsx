@@ -14,10 +14,15 @@ const NAV_LINKS = [
   { name: "Properties", href: "/properties" },
 ];
 
+import { useSavedProperties } from "@/context/SavedPropertiesContext";
+import { Heart } from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/WhatsApp";
+
 export function Navbar({ agent }: { agent: any }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const agentPhone = agent?.phone || "6281234567890";
+  const { savedIds } = useSavedProperties();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -58,6 +63,22 @@ export function Navbar({ agent }: { agent: any }) {
                 {link.name}
               </Link>
             ))}
+            
+            <Link 
+              href="/properties?saved=true" 
+              className="group flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-rose-500 transition-colors border-l pl-6"
+            >
+              <div className="relative">
+                <Heart className="h-4 w-4 group-hover:fill-current" />
+                {savedIds.length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-in zoom-in">
+                    {savedIds.length}
+                  </span>
+                )}
+              </div>
+              Saved
+            </Link>
+
             <div className="flex items-center gap-4 ml-4 border-l pl-6">
               <Link href="/login">
                 <Button variant="ghost" size="sm">
@@ -67,7 +88,7 @@ export function Navbar({ agent }: { agent: any }) {
               </Link>
               <Button asChild size="sm">
                 <a href={`https://wa.me/${agentPhone}`} target="_blank" rel="noopener noreferrer">
-                  <Phone className="mr-2 h-4 w-4" />
+                  <WhatsAppIcon className="mr-2 h-4 w-4" />
                   Contact Us
                 </a>
               </Button>
@@ -145,6 +166,31 @@ export function Navbar({ agent }: { agent: any }) {
                               </Link>
                             </motion.div>
                           ))}
+                          
+                          {/* Mobile Saved Link */}
+                          <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 + NAV_LINKS.length * 0.1 }}
+                          >
+                            <Link
+                              href="/properties?saved=true"
+                              onClick={() => setIsOpen(false)}
+                              className="flex items-center justify-between p-5 rounded-[1.5rem] text-lg font-black text-muted-foreground hover:bg-rose-50 hover:text-rose-500 transition-all duration-300"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="relative">
+                                  <Heart className="h-5 w-5" />
+                                  {savedIds.length > 0 && (
+                                    <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center">
+                                      {savedIds.length}
+                                    </span>
+                                  )}
+                                </div>
+                                Saved Properties
+                              </div>
+                            </Link>
+                          </motion.div>
                         </div>
                       </div>
 
@@ -157,7 +203,7 @@ export function Navbar({ agent }: { agent: any }) {
                       >
                         <Button asChild size="xl" className="w-full shadow-xl shadow-primary/20 rounded-2xl h-14 text-base font-bold">
                           <a href={`https://wa.me/${agentPhone}`} target="_blank" rel="noopener noreferrer">
-                            <Phone className="mr-3 h-5 w-5" />
+                            <WhatsAppIcon className="mr-3 h-5 w-5" />
                             Hubungi Kami
                           </a>
                         </Button>

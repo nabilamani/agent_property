@@ -25,6 +25,9 @@ export interface Property {
   agent_whatsapp: string;
   owner_whatsapp: string | null;
   is_active: boolean;
+  is_sold: boolean;
+  views_count: number;
+  whatsapp_clicks_count: number;
   created_at: string;
   updated_at: string;
 }
