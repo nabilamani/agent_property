@@ -123,7 +123,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="space-y-2.5">
-                  <Label htmlFor="password" senior className="text-xs font-black uppercase tracking-widest text-muted-foreground/70 ml-1">Secure Password</Label>
+                  <Label htmlFor="password" className="text-xs font-black uppercase tracking-widest text-muted-foreground/70 ml-1">Secure Password</Label>
                   <div className="relative">
                     <Input
                       id="password"
