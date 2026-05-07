@@ -87,44 +87,49 @@ export default async function LandingPage() {
 
       {/* Featured Properties Section */}
       <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12">
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight mb-2">Properti Pilihan</h2>
-              <p className="text-muted-foreground">
-                Listing terbaik dan paling dicari saat ini.
-              </p>
-            </div>
-            <Button variant="ghost" className="hidden md:flex" asChild>
-              <Link href="/properties">
-                Lihat Semua Listing <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
+  <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    {/* Header - center di mobile, left di desktop */}
+    <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-12 gap-4">
+      <div className="text-center md:text-left">
+        <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3">
+          Properti Pilihan
+        </h2>
+        <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto md:mx-0">
+          Listing terbaik dan paling dicari saat ini untuk investasi masa depan Anda.
+        </p>
+      </div>
+      <Button variant="ghost" className="hidden md:flex" asChild>
+        <Link href="/properties">
+          Lihat Semua Listing <ArrowRight className="ml-2 h-4 w-4" />
+        </Link>
+      </Button>
+    </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProperties.map((property) => (
-              <PropertyCard
-                key={property.id}
-                property={{
-                  ...property,
-                  price: Number(property.price),
-                  images: getImages(property),
-                }}
-                agentPhone={displayAgent.phone}
-              />
-            ))}
-          </div>
+    {/* Grid - gap lebih kecil di mobile */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+      {featuredProperties.map((property) => (
+        <PropertyCard
+          key={property.id}
+          property={{
+            ...property,
+            price: Number(property.price),
+            images: getImages(property),
+          }}
+          agentPhone={displayAgent.phone}
+        />
+      ))}
+    </div>
 
-          <div className="mt-10 flex justify-center md:hidden">
-            <Button variant="outline" className="w-full" asChild>
-              <Link href="/properties">
-                Lihat Semua Listing <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+    {/* Button mobile - center */}
+    <div className="mt-10 flex justify-center md:hidden">
+      <Button variant="outline" className="w-full max-w-xs" asChild>
+        <Link href="/properties">
+          Lihat Semua Listing <ArrowRight className="ml-2 h-4 w-4" />
+        </Link>
+      </Button>
+    </div>
+  </div>
+</section>
 
       {/* Agent Branding Section */}
       <section className="py-24 bg-primary text-primary-foreground relative overflow-hidden">

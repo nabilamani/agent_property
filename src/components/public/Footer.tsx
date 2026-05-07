@@ -5,8 +5,10 @@ export function Footer() {
   return (
     <footer className="bg-muted border-t">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          
+          {/* Brand: Mengambil 2 kolom di Desktop, full width di Mobile */}
+          <div className="col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-6 group">
               <div className="bg-primary/10 p-2 rounded-xl group-hover:bg-primary/20 transition-colors">
                 <Home className="h-6 w-6 text-primary" />
@@ -23,15 +25,16 @@ export function Footer() {
             <p className="text-muted-foreground text-sm max-w-sm mb-6 leading-relaxed">
               Platform listing properti terpercaya untuk menemukan hunian impian dengan layanan personal dari agen profesional berpengalaman.
             </p>
-            <div className="flex gap-4">
+            {/* <div className="flex gap-4">
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
                 <LinkIcon className="h-5 w-5" />
                 <span className="sr-only">Social Link</span>
               </a>
-            </div>
+            </div> */}
           </div>
           
-          <div>
+          {/* Quick Links: Di mobile kiri (kolom 1), di desktop normal */}
+          <div className="md:col-start-3">
             <h3 className="font-semibold text-foreground mb-4">Quick Links</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li>
@@ -49,6 +52,7 @@ export function Footer() {
             </ul>
           </div>
 
+          {/* Contact: Di mobile kanan (kolom 2), di desktop normal */}
           <div>
             <h3 className="font-semibold text-foreground mb-4">Contact</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">

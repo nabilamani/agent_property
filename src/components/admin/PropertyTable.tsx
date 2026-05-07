@@ -36,11 +36,13 @@ interface PropertyRow {
   type: string;
   price: number;
   is_active?: boolean;
+  is_sold?: boolean;
+  agent_whatsapp?: string;
   property_images?: { id: string, image_url: string }[];
   images?: string[];
 }
 
-export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
+export function PropertyTable({ properties, agentPhone }: { properties: PropertyRow[], agentPhone: string }) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("Semua");
@@ -198,11 +200,26 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
           <div className="md:col-span-2 space-y-2">
             <Label htmlFor="title" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Judul Properti *</Label>
-            <Input id="title" name="title" defaultValue={defaultValues?.title} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" required />
+            <Input 
+              id="title" 
+              name="title" 
+              placeholder="Contoh: Rumah Minimalis Modern di Pusat Kota"
+              defaultValue={defaultValues?.title} 
+              className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
+              required 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="price" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Harga (IDR) *</Label>
-            <Input id="price" name="price" type="number" defaultValue={defaultValues?.price} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" required />
+            <Input 
+              id="price" 
+              name="price" 
+              type="number" 
+              placeholder="Masukkan nominal harga"
+              defaultValue={defaultValues?.price} 
+              className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
+              required 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="type" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Tipe Properti *</Label>
@@ -210,7 +227,7 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
               id="type"
               name="type"
               defaultValue={defaultValues?.type || "Rumah"}
-              className="flex h-12 w-full rounded-2xl bg-muted/20 border-transparent px-3 py-1 text-sm font-sans font-bold transition-all focus:ring-4 focus:ring-primary/10 outline-none focus:bg-background"
+              className="flex h-12 w-full rounded-2xl bg-muted/20 border-1 px-3 py-1 text-sm font-sans font-bold transition-all focus:ring-4 focus:ring-primary/10 outline-none focus:bg-background"
               required
             >
               <option value="Rumah">Rumah</option>
@@ -222,15 +239,36 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
           </div>
           <div className="md:col-span-2 space-y-2">
             <Label htmlFor="address" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Alamat Lengkap *</Label>
-            <Input id="address" name="address" defaultValue={defaultValues?.address} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" required />
+            <Input 
+              id="address" 
+              name="address" 
+              placeholder="Nama jalan, nomor, RT/RW, Kecamatan, Kota"
+              defaultValue={defaultValues?.address} 
+              className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
+              required 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="land_area" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Luas Tanah (m²)</Label>
-            <Input id="land_area" name="land_area" type="number" defaultValue={defaultValues?.land_area || 0} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" />
+            <Input 
+              id="land_area" 
+              name="land_area" 
+              type="number" 
+              placeholder="0"
+              defaultValue={defaultValues?.land_area || 0} 
+              className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="building_area" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Luas Bangunan (m²)</Label>
-            <Input id="building_area" name="building_area" type="number" defaultValue={defaultValues?.building_area || 0} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" />
+            <Input 
+              id="building_area" 
+              name="building_area" 
+              type="number" 
+              placeholder="0"
+              defaultValue={defaultValues?.building_area || 0} 
+              className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="condition" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Kondisi Unit</Label>
@@ -238,7 +276,7 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
               id="condition"
               name="condition"
               defaultValue={defaultValues?.condition || "Baru"}
-              className="flex h-12 w-full rounded-2xl bg-muted/20 border-transparent px-3 py-1 text-sm font-sans font-bold transition-all focus:ring-4 focus:ring-primary/10 outline-none focus:bg-background"
+              className="flex h-12 w-full rounded-2xl bg-muted/20 border-1 px-3 py-1 text-sm font-sans font-bold transition-all focus:ring-4 focus:ring-primary/10 outline-none focus:bg-background"
             >
               <option value="Baru">Baru</option>
               <option value="Bekas">Bekas</option>
@@ -273,13 +311,25 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
               <option value="true">Terjual</option>
             </select>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="agent_whatsapp" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">WA Agent *</Label>
-            <Input id="agent_whatsapp" name="agent_whatsapp" defaultValue={defaultValues?.agent_whatsapp || "6281234567890"} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" required />
+          <div className="space-y-2 opacity-60">
+            <Label htmlFor="agent_whatsapp" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">WA Agent (Otomatis dari Profil)</Label>
+            <Input 
+              id="agent_whatsapp" 
+              name="agent_whatsapp" 
+              value={editingProperty ? editingProperty.agent_whatsapp : agentPhone} 
+              readOnly
+              className="h-12 rounded-2xl bg-muted/40 border-1 cursor-not-allowed font-bold" 
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="owner_whatsapp" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">WA Owner (Opsional)</Label>
-            <Input id="owner_whatsapp" name="owner_whatsapp" defaultValue={defaultValues?.owner_whatsapp || ""} className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all" />
+            <Input 
+              id="owner_whatsapp" 
+              name="owner_whatsapp" 
+              placeholder="Contoh: 6281234567890"
+              defaultValue={defaultValues?.owner_whatsapp || ""} 
+              className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
+            />
           </div>
           <div className="md:col-span-2 space-y-2">
             <Label htmlFor="map_url" className="text-[11px] font-black uppercase tracking-[0.1em] text-muted-foreground/70 ml-1">Google Maps Embed URL</Label>
@@ -288,7 +338,7 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
               name="map_url" 
               defaultValue={defaultValues?.map_url || ""} 
               placeholder="Paste kode <iframe> atau URL maps di sini"
-              className="h-12 rounded-2xl bg-muted/20 border-transparent focus:bg-background transition-all"
+              className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90"
             />
           </div>
           <div className="md:col-span-2 space-y-2">
@@ -296,8 +346,9 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
             <Textarea 
               id="description" 
               name="description" 
+              placeholder="Tuliskan detail menarik tentang properti ini (misal: bebas banjir, dekat tol, AC gratis, dll)"
               defaultValue={defaultValues?.description || ""} 
-              className="min-h-[150px] rounded-3xl bg-muted/20 border-transparent focus:bg-background transition-all p-4" 
+              className="min-h-[150px] rounded-3xl bg-muted/20 border-1 focus:bg-background transition-all p-4 placeholder:text-muted-foreground/60" 
             />
           </div>
 
@@ -432,7 +483,7 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
           />
         </div>
         
-        <div className="flex items-center gap-2 px-3 h-12 bg-background rounded-2xl shadow-inner border border-transparent focus-within:border-primary/20 transition-all">
+        <div className="flex items-center gap-2 px-3 h-12 bg-background rounded-2xl shadow-inner border border-1 focus-within:border-primary/20 transition-all">
           <Filter className="h-4 w-4 text-primary/40" />
           <select 
             className="bg-transparent text-sm font-sans font-bold w-full focus:outline-none cursor-pointer"
@@ -448,7 +499,7 @@ export function PropertyTable({ properties }: { properties: PropertyRow[] }) {
           </select>
         </div>
 
-        <div className="flex items-center gap-2 px-3 h-12 bg-background rounded-2xl shadow-inner border border-transparent focus-within:border-primary/20 transition-all">
+        <div className="flex items-center gap-2 px-3 h-12 bg-background rounded-2xl shadow-inner border border-1 focus-within:border-primary/20 transition-all">
           <div className={`h-2 w-2 rounded-full ${statusFilter === "Aktif" ? "bg-emerald-500" : statusFilter === "Nonaktif" ? "bg-gray-400" : "bg-primary/40"}`} />
           <select 
             className="bg-transparent text-sm font-sans font-bold w-full focus:outline-none cursor-pointer"
