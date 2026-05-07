@@ -66,7 +66,9 @@ export function PropertyCard({ property, agentPhone }: PropertyCardProps) {
             variant="secondary"
             className={cn(
               "h-8 w-8 rounded-full backdrop-blur-md border-none shadow-sm transition-all duration-300",
-              saved ? "bg-white text-rose-500 hover:text-rose-600 scale-110" : "bg-white/70 text-foreground hover:bg-white hover:scale-110"
+              saved 
+                ? "bg-rose-500 text-white hover:bg-rose-600 scale-110" 
+                : "bg-white/80 dark:bg-black/40 text-foreground hover:bg-white dark:hover:bg-black/60 hover:scale-110"
             )}
             onClick={(e) => {
               e.preventDefault();
@@ -137,7 +139,7 @@ export function PropertyCard({ property, agentPhone }: PropertyCardProps) {
               asChild
               variant="outline"
               size="icon"
-              className="rounded-xl border-emerald-100 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 shrink-0 shadow-sm"
+              className="rounded-xl border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-200 shrink-0 shadow-sm transition-colors"
               title="Hubungi via WhatsApp"
             >
               <a

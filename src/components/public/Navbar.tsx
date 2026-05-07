@@ -8,6 +8,7 @@ import { Menu, Home, Phone, LogIn } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const NAV_LINKS = [
   { name: "Home", href: "/" },
@@ -80,6 +81,7 @@ export function Navbar({ agent }: { agent: any }) {
             </Link>
 
             <div className="flex items-center gap-4 ml-4 border-l pl-6">
+              <ThemeToggle />
               <Link href="/login">
                 <Button variant="ghost" size="sm">
                   <LogIn className="mr-2 h-4 w-4" />
@@ -96,7 +98,8 @@ export function Navbar({ agent }: { agent: any }) {
           </nav>
 
           {/* Mobile Navigation */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeToggle />
             <Button 
               variant="ghost" 
               size="icon" 

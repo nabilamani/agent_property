@@ -17,19 +17,19 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full flex-col border-r bg-muted/40">
-      <div className="p-6">
-        <Link href="/" className="flex items-center gap-2 mb-6">
-          <div className="bg-primary p-1.5 rounded-md">
+    <div className="flex h-full flex-col border-r bg-sidebar border-sidebar-border shadow-sm">
+      <div className="p-8">
+        <Link href="/" className="flex items-center gap-3 mb-10 group">
+          <div className="bg-primary p-2 rounded-xl shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-300">
             <Building className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-xl font-bold tracking-tight">
-            Agent<span className="text-primary">Pro</span> Admin
+          <span className="text-xl font-black tracking-tighter text-foreground">
+            Agent<span className="text-primary">Pro</span>
           </span>
         </Link>
       </div>
 
-      <nav className="flex-1 px-4 space-y-1">
+      <nav className="flex-1 px-4 space-y-2">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -37,16 +37,16 @@ export function Sidebar() {
               key={item.name}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black transition-all duration-300",
                 isActive
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                  : "text-muted-foreground hover:bg-muted/80 hover:text-foreground hover:translate-x-1"
               )}
             >
               <item.icon
                 className={cn(
-                  "h-4 w-4",
-                  isActive ? "text-primary-foreground" : "text-muted-foreground"
+                  "h-5 w-5 transition-colors",
+                  isActive ? "text-primary-foreground" : "text-muted-foreground/60"
                 )}
               />
               {item.name}
@@ -55,14 +55,14 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 mt-auto border-t space-y-1">
+      <div className="p-6 mt-auto border-t border-sidebar-border space-y-2">
         <Button
           variant="ghost"
-          className="w-full justify-start text-muted-foreground hover:text-foreground"
+          className="w-full justify-start rounded-2xl h-12 text-sm font-black text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-all"
           asChild
         >
           <Link href="/">
-            <Globe className="mr-2 h-4 w-4" />
+            <Globe className="mr-3 h-5 w-5 text-primary/60" />
             Lihat Website
           </Link>
         </Button>
@@ -70,9 +70,9 @@ export function Sidebar() {
           <Button
             type="submit"
             variant="ghost"
-            className="w-full justify-start text-muted-foreground hover:text-destructive"
+            className="w-full justify-start rounded-2xl h-12 text-sm font-black text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
           >
-            <LogOut className="mr-2 h-4 w-4" />
+            <LogOut className="mr-3 h-5 w-5" />
             Logout
           </Button>
         </form>
