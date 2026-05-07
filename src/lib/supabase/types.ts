@@ -28,6 +28,7 @@ export interface Property {
   is_sold: boolean;
   views_count: number;
   whatsapp_clicks_count: number;
+  is_featured?: boolean;
   created_at: string;
   updated_at: string;
 }

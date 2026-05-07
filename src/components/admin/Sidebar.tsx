@@ -13,7 +13,7 @@ const navItems = [
   { name: "Profil Agent", href: "/admin/profile", icon: UserCircle },
 ];
 
-export function Sidebar() {
+export function Sidebar({ onItemClick }: { onItemClick?: () => void }) {
   const pathname = usePathname();
 
   return (
@@ -36,6 +36,7 @@ export function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
+              onClick={onItemClick}
               className={cn(
                 "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black transition-all duration-300",
                 isActive

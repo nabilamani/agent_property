@@ -18,6 +18,9 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { updateAgent } from "@/app/actions/agent";
+import { cn } from "@/lib/utils";
+
+import { compressImage } from "@/lib/image-compression";
 
 interface AgentData {
   name: string;
@@ -31,6 +34,8 @@ interface AgentData {
 export function AgentProfileForm({ agent }: { agent: AgentData }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [compressingPhoto, setCompressingPhoto] = useState(false);
+  const [compressingLogo, setCompressingLogo] = useState(false);
   
   // Photo preview state
   const [previewUrl, setPreviewUrl] = useState<string | null>(agent.photo);
@@ -48,33 +53,37 @@ export function AgentProfileForm({ agent }: { agent: AgentData }) {
     setSelectedLogoFile(null);
   }, [agent.photo, agent.logo]);
 
-  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > MAX_FILE_SIZE) {
-        toast.error("Ukuran file terlalu besar! Maksimal 2MB.");
-        e.target.value = ""; // Clear input
-        return;
+      setCompressingPhoto(true);
+      try {
+        const compressed = await compressImage(file);
+        setSelectedFile(compressed);
+        const url = URL.createObjectURL(compressed);
+        setPreviewUrl(url);
+      } catch (err) {
+        toast.error("Gagal mengompres foto profil");
+      } finally {
+        setCompressingPhoto(false);
       }
-      setSelectedFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
     }
   };
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > MAX_FILE_SIZE) {
-        toast.error("Ukuran logo terlalu besar! Maksimal 2MB.");
-        e.target.value = "";
-        return;
+      setCompressingLogo(true);
+      try {
+        const compressed = await compressImage(file);
+        setSelectedLogoFile(compressed);
+        const url = URL.createObjectURL(compressed);
+        setLogoPreviewUrl(url);
+      } catch (err) {
+        toast.error("Gagal mengompres logo");
+      } finally {
+        setCompressingLogo(false);
       }
-      setSelectedLogoFile(file);
-      const url = URL.createObjectURL(file);
-      setLogoPreviewUrl(url);
     }
   };
 
@@ -162,13 +171,36 @@ export function AgentProfileForm({ agent }: { agent: AgentData }) {
                 </div>
                 
                 <div className="w-full">
-                  <Label htmlFor="photo" className="cursor-pointer block">
+                  <Label 
+                    htmlFor="photo" 
+                    className={cn(
+                      "cursor-pointer block",
+                      compressingPhoto && "opacity-50 cursor-not-allowed pointer-events-none"
+                    )}
+                  >
                     <div className="flex items-center justify-center gap-2 px-4 py-3 bg-primary/5 border border-primary/10 rounded-xl text-sm font-bold text-primary hover:bg-primary/10 transition-colors w-full">
-                      <Upload className="h-4 w-4" />
-                      {selectedFile ? "Ganti Foto" : "Unggah Foto"}
+                      {compressingPhoto ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Memproses...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-4 w-4" />
+                          {selectedFile ? "Ganti Foto" : "Unggah Foto"}
+                        </>
+                      )}
                     </div>
                   </Label>
-                  <Input id="photo" name="photo" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                  <Input 
+                    id="photo" 
+                    name="photo" 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={handleFileChange} 
+                    disabled={compressingPhoto}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -200,13 +232,36 @@ export function AgentProfileForm({ agent }: { agent: AgentData }) {
                 </div>
                 
                 <div className="w-full">
-                  <Label htmlFor="logo" className="cursor-pointer block">
+                  <Label 
+                    htmlFor="logo" 
+                    className={cn(
+                      "cursor-pointer block",
+                      compressingLogo && "opacity-50 cursor-not-allowed pointer-events-none"
+                    )}
+                  >
                     <div className="flex items-center justify-center gap-2 px-4 py-3 border border-border rounded-xl text-sm font-bold hover:bg-muted transition-colors w-full">
-                      <Upload className="h-4 w-4" />
-                      {selectedLogoFile ? "Ganti Logo" : "Unggah Logo"}
+                      {compressingLogo ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Memproses...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-4 w-4" />
+                          {selectedLogoFile ? "Ganti Logo" : "Unggah Logo"}
+                        </>
+                      )}
                     </div>
                   </Label>
-                  <Input id="logo" name="logo" type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+                  <Input 
+                    id="logo" 
+                    name="logo" 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={handleLogoChange} 
+                    disabled={compressingLogo}
+                  />
                 </div>
               </CardContent>
             </Card>

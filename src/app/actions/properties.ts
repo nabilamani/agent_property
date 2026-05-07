@@ -10,6 +10,7 @@ import type { PropertyType, PropertyCondition } from "@/lib/supabase/types";
 export async function getProperties(options?: {
   type?: string;
   activeOnly?: boolean;
+  featuredOnly?: boolean;
 }) {
   const supabase = await createClient();
 
@@ -17,6 +18,10 @@ export async function getProperties(options?: {
     .from("properties")
     .select("*, property_images(*)")
     .order("created_at", { ascending: false });
+
+  if (options?.featuredOnly) {
+    query = query.eq("is_featured", true).limit(3);
+  }
 
   if (options?.activeOnly !== false) {
     query = query.eq("is_active", true);
@@ -73,10 +78,25 @@ function extractMapUrl(input: string | null): string | null {
 export async function createProperty(formData: FormData) {
   const supabase = await createClient();
 
+  // Validation
+  const errors: Record<string, string> = {};
+  const title = formData.get("title") as string;
+  const priceStr = formData.get("price") as string;
+  const address = formData.get("address") as string;
+  const price = parseInt(priceStr) || 0;
+
+  if (!title || title.length < 5) errors.title = "Judul terlalu pendek (min 5 karakter)";
+  if (!price || price <= 0) errors.price = "Harga harus lebih besar dari 0";
+  if (!address || address.length < 10) errors.address = "Alamat harus lengkap (min 10 karakter)";
+
+  if (Object.keys(errors).length > 0) {
+    return { fieldErrors: errors };
+  }
+
   const propertyData = {
-    title: formData.get("title") as string,
-    price: parseInt(formData.get("price") as string) || 0,
-    address: formData.get("address") as string,
+    title,
+    price,
+    address,
     map_url: extractMapUrl(formData.get("map_url") as string),
     type: formData.get("type") as PropertyType,
     land_area: parseInt(formData.get("land_area") as string) || 0,
@@ -123,10 +143,25 @@ export async function createProperty(formData: FormData) {
 export async function updateProperty(id: string, formData: FormData) {
   const supabase = await createClient();
 
+  // Validation
+  const errors: Record<string, string> = {};
+  const title = formData.get("title") as string;
+  const priceStr = formData.get("price") as string;
+  const address = formData.get("address") as string;
+  const price = parseInt(priceStr) || 0;
+
+  if (!title || title.length < 5) errors.title = "Judul terlalu pendek (min 5 karakter)";
+  if (!price || price <= 0) errors.price = "Harga harus lebih besar dari 0";
+  if (!address || address.length < 10) errors.address = "Alamat harus lengkap (min 10 karakter)";
+
+  if (Object.keys(errors).length > 0) {
+    return { fieldErrors: errors };
+  }
+
   const propertyData = {
-    title: formData.get("title") as string,
-    price: parseInt(formData.get("price") as string) || 0,
-    address: formData.get("address") as string,
+    title,
+    price,
+    address,
     map_url: extractMapUrl(formData.get("map_url") as string),
     type: formData.get("type") as PropertyType,
     land_area: parseInt(formData.get("land_area") as string) || 0,
@@ -223,15 +258,17 @@ async function uploadPropertyImages(propertyId: string, files: File[]) {
     .order("position", { ascending: false })
     .limit(1);
 
-  let position = existingImages && existingImages.length > 0
+  let startPosition = existingImages && existingImages.length > 0
     ? existingImages[0].position + 1
     : 0;
 
-  for (const file of files) {
-    if (file.size === 0) continue;
+  // Prepare upload promises
+  const uploadPromises = files.map(async (file, index) => {
+    if (file.size === 0) return null;
 
     const fileExt = file.name.split(".").pop();
-    const fileName = `${propertyId}/${Date.now()}-${position}.${fileExt}`;
+    const currentPosition = startPosition + index;
+    const fileName = `${propertyId}/${Date.now()}-${currentPosition}.${fileExt}`;
 
     const { error: uploadError } = await supabase.storage
       .from("property-images")
@@ -239,20 +276,33 @@ async function uploadPropertyImages(propertyId: string, files: File[]) {
 
     if (uploadError) {
       console.error("Error uploading image:", uploadError);
-      continue;
+      return null;
     }
 
     const { data: urlData } = supabase.storage
       .from("property-images")
       .getPublicUrl(fileName);
 
-    await supabase.from("property_images").insert({
+    return {
       property_id: propertyId,
       image_url: urlData.publicUrl,
-      position,
-    });
+      position: currentPosition,
+    };
+  });
 
-    position++;
+  // Execute all uploads in parallel
+  const results = await Promise.all(uploadPromises);
+  const validResults = results.filter(res => res !== null);
+
+  // Bulk insert into database
+  if (validResults.length > 0) {
+    const { error: insertError } = await supabase
+      .from("property_images")
+      .insert(validResults);
+    
+    if (insertError) {
+      console.error("Error bulk inserting property images:", insertError);
+    }
   }
 }
 
@@ -303,4 +353,37 @@ export async function incrementWhatsAppClick(id: string) {
   const supabase = await createClient();
   
   await supabase.rpc('increment_property_whatsapp_clicks', { property_id: id });
+}
+
+// ============================================
+// FEATURED: Toggle featured status
+// ============================================
+export async function toggleFeaturedProperty(id: string, isFeatured: boolean) {
+  const supabase = await createClient();
+
+  // If we are featuring, check if already 3 featured
+  if (isFeatured) {
+    const { count } = await supabase
+      .from("properties")
+      .select("*", { count: "exact", head: true })
+      .eq("is_featured", true);
+    
+    if (count && count >= 3) {
+      return { error: "Maksimal 3 properti pilihan yang dapat ditampilkan di beranda." };
+    }
+  }
+
+  const { error } = await supabase
+    .from("properties")
+    .update({ is_featured: isFeatured })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error toggling featured status:", error);
+    return { error: error.message };
+  }
+
+  revalidatePath("/admin/properties");
+  revalidatePath("/");
+  return { success: true };
 }

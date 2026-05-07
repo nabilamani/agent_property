@@ -6,7 +6,15 @@ import { PropertyCard } from "@/components/public/PropertyCard";
 import { getProperties } from "@/app/actions/properties";
 import { getAgent } from "@/app/actions/agent";
 export default async function LandingPage() {
-  const properties = await getProperties();
+  // Fetch only featured properties for the home page
+  let properties = await getProperties({ featuredOnly: true });
+  
+  // Fallback: if no featured properties selected, show latest 3 active ones
+  if (!properties || properties.length === 0) {
+    const allActive = await getProperties({ activeOnly: true });
+    properties = allActive.slice(0, 3);
+  }
+
   const agent = await getAgent();
 
   const displayProperties = properties || [];
@@ -19,7 +27,7 @@ export default async function LandingPage() {
     caption: "",
   };
 
-  const featuredProperties = displayProperties.slice(0, 3);
+  const featuredProperties = displayProperties;
 
   // Helper to get images array
   const getImages = (prop: (typeof displayProperties)[0]) => {
@@ -59,7 +67,7 @@ export default async function LandingPage() {
             </h1>
             
             <p className="text-base md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
-              Eksplorasi pilihan rumah, apartemen, dan tanah terbaik di lokasi paling strategis. 
+              Eksplorasi pilihan rumah, tanah, dan cluster terbaik di lokasi paling strategis. 
               Mulai perjalanan investasi masa depan Anda hari ini.
             </p>
 

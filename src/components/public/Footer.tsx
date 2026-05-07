@@ -16,7 +16,7 @@ export function Footer() {
                   Agent<span className="text-primary">Pro</span>
                 </span>
                 <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
-                  Property Soloraya
+                  Bina Property Soloraya
                 </span>
               </div>
             </Link>
@@ -54,7 +54,7 @@ export function Footer() {
               </li>
               <li className="flex flex-col gap-1">
                 <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">Support</span>
-                <span className="text-sm font-bold text-muted-foreground">soloraya@agentpro.com</span>
+                <span className="text-sm font-bold text-muted-foreground">soloraya@binapro.com</span>
                 <span className="text-sm font-bold text-muted-foreground">+62 857 2885 3831</span>
               </li>
             </ul>

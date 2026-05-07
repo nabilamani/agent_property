@@ -8,13 +8,16 @@ import { Sidebar } from "./Sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import Image from "next/image";
 
+import { useState } from "react";
+
 export function Header({ agent }: { agent: any }) {
+  const [open, setOpen] = useState(false);
   const displayAgent = agent || { name: "Agent", photo: null };
 
   return (
     <header className="sticky top-0 z-40 flex h-20 shrink-0 items-center gap-x-4 border-b border-border/40 bg-background/80 backdrop-blur-xl px-4 sm:gap-x-6 sm:px-6 lg:px-8">
       {/* Mobile Sidebar Trigger */}
-      <Sheet>
+      <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger
           render={
             <Button variant="ghost" size="icon" className="-m-2.5 p-2.5 text-muted-foreground lg:hidden hover:bg-muted/50 rounded-xl transition-colors">
@@ -24,7 +27,7 @@ export function Header({ agent }: { agent: any }) {
           }
         />
         <SheetContent side="left" className="w-72 p-0 border-none">
-          <Sidebar />
+          <Sidebar onItemClick={() => setOpen(false)} />
         </SheetContent>
       </Sheet>
 

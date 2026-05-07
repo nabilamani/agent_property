@@ -88,7 +88,7 @@ export function PropertyImageSlider({ images, title }: PropertyImageSliderProps)
             <CarouselNext className="right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 backdrop-blur-md border-none text-white hover:bg-white/30 h-10 w-10" />
             
             {/* Pagination Dots - Positioned higher inside the image */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
               {Array.from({ length: count }).map((_, i) => (
                 <button
                   key={i}
