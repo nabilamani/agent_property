@@ -114,16 +114,18 @@ export function PropertyImageSlider({ images, title }: PropertyImageSliderProps)
 
         {/* Expand Button */}
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button
-              variant="secondary"
-              size="icon"
-              className="absolute top-4 right-4 h-10 w-10 rounded-full bg-black/20 backdrop-blur-md border-white/20 text-white hover:bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
-            >
-              <Maximize2 className="h-4 w-4" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-[100vw] w-full p-0 border-none bg-black overflow-hidden h-[100dvh] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
+          <DialogTrigger
+            render={
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute top-8 right-8 h-10 w-10 rounded-full bg-black/20 backdrop-blur-md border-white/20 text-white hover:bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 shadow-sm"
+              >
+                <Maximize2 className="h-4 w-4" />
+              </Button>
+            }
+          />
+          <DialogContent className="max-w-[100vw] w-full p-0 border-none bg-black overflow-hidden h-[100dvh]">
             <DialogTitle className="sr-only">Galeri Foto Fullscreen</DialogTitle>
             <div className="relative w-full h-full flex flex-col items-center justify-center">
               <Carousel 
