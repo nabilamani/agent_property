@@ -143,7 +143,9 @@ export function PropertyCard({ property, agentPhone }: PropertyCardProps) {
               title="Hubungi via WhatsApp"
             >
               <a
-                href={`https://wa.me/${targetPhone}?text=${encodeURIComponent(`Halo, saya tertarik dengan properti: ${property.title}`)}`}
+                href={`https://wa.me/${targetPhone}?text=${encodeURIComponent(
+                  `Halo AgentPro, saya tertarik dengan properti ini:\n\n🏠 *${property.title}*\n💰 *${formatCurrency(property.price)}*\n📍 ${property.address}\n\nApakah unit ini masih tersedia? Saya ingin menanyakan detail lebih lanjut. Terima kasih.`
+                )}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

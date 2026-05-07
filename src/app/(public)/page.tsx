@@ -204,7 +204,7 @@ export default async function LandingPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Konsultasi Gratis Sekarang
+                    Konsultasi Properti Sekarang
                   </a>
                 </Button>
               </div>

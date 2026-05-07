@@ -5,18 +5,11 @@ import { MapPin, Expand, Home, ArrowLeft, Phone, Share2, Check } from "lucide-re
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { PropertyImageSlider } from "@/components/public/PropertyImageSlider";
 import { formatCurrency, cn } from "@/lib/utils";
 import { getPropertyById } from "@/app/actions/properties";
 import { getAgent } from "@/app/actions/agent";
 import { PropertyTracker, WhatsAppTracker } from "@/components/public/PropertyTracker";
-
 import { WhatsAppIcon } from "@/components/icons/WhatsApp";
 
 export default async function PropertyDetailPage({
@@ -42,7 +35,7 @@ export default async function PropertyDetailPage({
   const agentPhone = agent?.phone || "6281234567890";
   const agentPhoto = agent?.photo || null;
 
-  const defaultMessage = `Halo ${agentName}, saya tertarik dengan properti "${property.title}" yang diiklankan. Boleh minta info lebih lanjut?`;
+  const defaultMessage = `Halo ${agentName}, saya tertarik dengan properti yang saya temukan di website:\n\n🏠 *${property.title}*\n💰 *${formatCurrency(property.price)}*\n📍 ${property.address}\n\nBoleh minta info lebih lanjut atau jadwal survei lokasi? Terima kasih.`;
   const whatsappUrl = `https://wa.me/${agentPhone}?text=${encodeURIComponent(defaultMessage)}`;
 
   return (
@@ -66,43 +59,7 @@ export default async function PropertyDetailPage({
         {/* Main Content (Images & Info) */}
         <div className="lg:col-span-2 space-y-8">
           {/* Image Gallery */}
-          <div className="bg-muted rounded-xl overflow-hidden">
-            {images.length > 1 ? (
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {images.map((img: string, idx: number) => (
-                    <CarouselItem key={idx}>
-                      <div className="relative aspect-[4/3] w-full md:aspect-[16/9]">
-                        <Image
-                          src={img}
-                          alt={`${property.title} - Image ${idx + 1}`}
-                          fill
-                          className="object-cover"
-                          priority={idx === 0}
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-4" />
-                <CarouselNext className="right-4" />
-              </Carousel>
-            ) : images.length === 1 ? (
-              <div className="relative aspect-[4/3] w-full md:aspect-[16/9]">
-                <Image
-                  src={images[0]}
-                  alt={property.title}
-                  fill
-                  className={cn("object-cover", property.is_sold && "grayscale-[0.5] opacity-80")}
-                  priority
-                />
-              </div>
-            ) : (
-              <div className="aspect-[16/9] flex items-center justify-center bg-muted text-muted-foreground">
-                Tidak ada gambar
-              </div>
-            )}
-          </div>
+          <PropertyImageSlider images={images} title={property.title} />
 
           {/* Property Header */}
           <div className="bg-card rounded-3xl p-6 sm:p-8 shadow-sm border border-border/40 relative overflow-hidden">
@@ -266,7 +223,7 @@ export default async function PropertyDetailPage({
 
               <div className="mt-8 pt-8 border-t border-border/50 text-sm text-center text-muted-foreground/60 italic leading-relaxed">
                 <p>
-                  &quot;Kepuasan Anda adalah prioritas kami. Hubungi kapan saja untuk konsultasi gratis.&quot;
+                  &quot;Kepuasan Anda adalah prioritas kami. Hubungi kapan saja untuk konsultasi properti.&quot;
                 </p>
               </div>
             </div>

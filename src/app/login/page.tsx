@@ -28,9 +28,12 @@ export default function LoginPage() {
       } else {
         toast.success("Login berhasil! Mengalihkan...");
       }
-    } catch (e) {
-      toast.error("Terjadi kesalahan sistem");
-      setLoading(false);
+    } catch (e: any) {
+      // Don't show error toast if it's a redirect error (which is expected)
+      if (e?.message !== "NEXT_REDIRECT") {
+        toast.error("Terjadi kesalahan sistem");
+        setLoading(false);
+      }
     }
   }
 
