@@ -144,7 +144,7 @@ export function PropertyCard({ property, agentPhone }: PropertyCardProps) {
             >
               <a
                 href={`https://wa.me/${targetPhone}?text=${encodeURIComponent(
-                  `Halo AgentPro, saya tertarik dengan properti ini:\n\n🏠 *${property.title}*\n💰 *${formatCurrency(property.price)}*\n📍 ${property.address}\n\nApakah unit ini masih tersedia? Saya ingin menanyakan detail lebih lanjut. Terima kasih.`
+                  `Halo Bina Pro, saya tertarik dengan properti ini:\n\n🏠 *${property.title}*\n💰 *${formatCurrency(property.price)}*\n📍 ${property.address}\n\n🔗 *Link Detail:* https://agent-property-soloraya.vercel.app/properties/${property.id}\n\nApakah unit ini masih tersedia? Terima kasih.`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

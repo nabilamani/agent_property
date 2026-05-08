@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PropertyImageSlider } from "@/components/public/PropertyImageSlider";
+import { ShareButton } from "@/components/public/ShareButton";
 import { formatCurrency, cn } from "@/lib/utils";
 import { getPropertyById } from "@/app/actions/properties";
 import { getAgent } from "@/app/actions/agent";
@@ -35,7 +36,10 @@ export default async function PropertyDetailPage({
   const agentPhone = agent?.phone || "6281234567890";
   const agentPhoto = agent?.photo || null;
 
-  const defaultMessage = `Halo ${agentName}, saya tertarik dengan properti yang saya temukan di website:\n\n🏠 *${property.title}*\n💰 *${formatCurrency(property.price)}*\n📍 ${property.address}\n\nBoleh minta info lebih lanjut atau jadwal survei lokasi? Terima kasih.`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://agent-property-soloraya.vercel.app";
+  const propertyUrl = `${siteUrl}/properties/${property.id}`;
+  
+  const defaultMessage = `Halo ${agentName}, saya tertarik dengan properti ini:\n\n🏠 *${property.title}*\n💰 *${formatCurrency(property.price)}*\n📍 ${property.address}\n\n🔗 *Link Detail:* ${propertyUrl}\n\nBoleh minta info lebih lanjut atau jadwal survei lokasi? Terima kasih.`;
   const whatsappUrl = `https://wa.me/${agentPhone}?text=${encodeURIComponent(defaultMessage)}`;
 
   return (
@@ -49,10 +53,7 @@ export default async function PropertyDetailPage({
             Kembali ke Daftar Listing
           </Link>
         </Button>
-        <Button variant="outline" size="sm">
-          <Share2 className="mr-2 h-4 w-4" />
-          Bagikan
-        </Button>
+        <ShareButton title={property.title} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

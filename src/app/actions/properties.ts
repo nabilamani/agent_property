@@ -181,6 +181,22 @@ export async function updateProperty(id: string, formData: FormData) {
     .update(propertyData)
     .eq("id", id);
 
+  if (!error) {
+    // Handle image ordering if provided
+    const imageOrder = formData.get("image_order") as string;
+    if (imageOrder) {
+      const orderedIds = JSON.parse(imageOrder);
+      // Update each image position sequentially
+      // Note: In production, consider a bulk update or a more efficient way
+      for (let i = 0; i < orderedIds.length; i++) {
+        await supabase
+          .from("property_images")
+          .update({ position: i })
+          .eq("id", orderedIds[i]);
+      }
+    }
+  }
+
   if (error) {
     console.error("Error updating property in DB:", error);
     return { error: error.message };

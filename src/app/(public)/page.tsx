@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Search, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PropertyCard } from "@/components/public/PropertyCard";
+import { FloatingShare } from "@/components/public/FloatingShare";
 import { getProperties } from "@/app/actions/properties";
 import { getAgent } from "@/app/actions/agent";
 export default async function LandingPage() {
@@ -220,6 +221,7 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+      <FloatingShare />
     </div>
   );
 }

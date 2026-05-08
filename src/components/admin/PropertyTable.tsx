@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, Search, Loader2, Filter, ChevronDown, MoreHorizontal, ImagePlus, X, Star, AlertTriangle } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Loader2, Filter, ChevronDown, MoreHorizontal, ImagePlus, X, Star, AlertTriangle, ChevronLeft, ChevronRight, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -54,6 +54,9 @@ function PropertyForm({
   defaultValues, 
   formError, 
   fieldErrors = {},
+  orderedImages = [], 
+  onMoveExistingImage,
+  onMoveNewImage,
   existingImages, 
   handleDeleteImage, 
   deletingImage, 
@@ -67,6 +70,9 @@ function PropertyForm({
   defaultValues?: any,
   formError: string | null,
   fieldErrors?: Record<string, string>,
+  orderedImages?: any[],
+  onMoveExistingImage: (index: number, direction: 'left' | 'right') => void,
+  onMoveNewImage: (index: number, direction: 'left' | 'right') => void,
   existingImages: any[],
   handleDeleteImage: (id: string, url: string) => void,
   deletingImage: string | null,
@@ -248,16 +254,48 @@ function PropertyForm({
           <Label className="text-sm font-black uppercase tracking-[0.15em] text-primary">Manajemen Media & Gambar</Label>
           
           {/* Existing Images */}
-          {existingImages.length > 0 && (
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 p-3 bg-muted/20 rounded-2xl border border-border/40">
-              {existingImages.map((img: any) => (
-                <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden group border border-border/40 shadow-sm bg-white">
+          {orderedImages.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-4 bg-muted/20 rounded-3xl border border-border/40">
+              {orderedImages.map((img: any, index: number) => (
+                <div key={img.id} className="relative aspect-square rounded-2xl overflow-hidden group border border-border/40 shadow-sm bg-white animate-in fade-in">
                   <Image src={img.image_url} alt="Property" fill className="object-cover" />
+                  
+                  {/* Badge for Main Image */}
+                  {index === 0 && (
+                    <div className="absolute top-2 left-2 px-2 py-1 bg-primary text-[8px] font-black uppercase text-white rounded-lg shadow-lg z-10">
+                      Sampul
+                    </div>
+                  )}
+
+                  {/* Reorder Controls */}
+                  <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-center gap-2">
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 rounded-lg bg-white/20 text-white hover:bg-white/40 disabled:opacity-30"
+                      onClick={() => onMoveExistingImage(index, 'left')}
+                      disabled={index === 0}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 rounded-lg bg-white/20 text-white hover:bg-white/40 disabled:opacity-30"
+                      onClick={() => onMoveExistingImage(index, 'right')}
+                      disabled={index === orderedImages.length - 1}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => handleDeleteImage(img.id, img.image_url)}
                     disabled={deletingImage === img.id}
-                    className="absolute top-1 right-1 h-6 w-6 bg-destructive/90 text-white rounded-md flex items-center justify-center opacity-100 transition-opacity disabled:opacity-50"
+                    className="absolute top-2 right-2 h-7 w-7 bg-destructive/90 text-white rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50 shadow-lg"
                   >
                     {deletingImage === img.id ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
@@ -273,19 +311,44 @@ function PropertyForm({
           {/* Images for Upload */}
           <div className="space-y-3">
             <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-              {existingImages.length > 0 ? "Tambah Gambar Baru" : "Upload Gambar"}
+              {orderedImages.length > 0 ? "Tambah Gambar Baru" : "Upload Gambar"}
             </Label>
             
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {previewUrls.map((url, index) => (
-                <div key={url} className="relative aspect-square rounded-xl overflow-hidden group border-2 border-primary/20 shadow-sm animate-in zoom-in">
+                <div key={url} className="relative aspect-square rounded-2xl overflow-hidden group border-2 border-primary/20 shadow-sm animate-in zoom-in">
                   <Image src={url} alt="Preview" fill className="object-cover" />
+                  
+                  {/* Reorder Controls */}
+                  <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-center gap-2">
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 rounded-lg bg-white/20 text-white hover:bg-white/40 disabled:opacity-30"
+                      onClick={() => onMoveNewImage(index, 'left')}
+                      disabled={index === 0}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 rounded-lg bg-white/20 text-white hover:bg-white/40 disabled:opacity-30"
+                      onClick={() => onMoveNewImage(index, 'right')}
+                      disabled={index === previewUrls.length - 1}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => removeNewImage(index)}
-                    className="absolute top-1 right-1 h-6 w-6 bg-rose-500 text-white rounded-md flex items-center justify-center shadow-lg hover:bg-rose-600 transition-colors"
+                    className="absolute top-2 right-2 h-7 w-7 bg-rose-500 text-white rounded-lg flex items-center justify-center shadow-lg hover:bg-rose-600 transition-colors opacity-0 group-hover:opacity-100"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-4 w-4" />
                   </button>
                 </div>
               ))}
@@ -346,6 +409,16 @@ export function PropertyTable({ properties, agentPhone }: { properties: Property
   const [togglingFeatured, setTogglingFeatured] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [propertyToDelete, setPropertyToDelete] = useState<string | null>(null);
+  const [orderedImages, setOrderedImages] = useState<any[]>([]);
+
+  // Update orderedImages when editingProperty changes
+  useEffect(() => {
+    if (editingProperty?.property_images) {
+      setOrderedImages([...editingProperty.property_images].sort((a, b) => (a.position || 0) - (b.position || 0)));
+    } else {
+      setOrderedImages([]);
+    }
+  }, [editingProperty]);
 
   async function handleToggleFeatured(id: string, currentStatus: boolean) {
     setTogglingFeatured(id);
@@ -480,15 +553,54 @@ export function PropertyTable({ properties, agentPhone }: { properties: Property
     }
   }
 
+  function moveExistingImage(index: number, direction: 'left' | 'right') {
+    const newOrdered = [...orderedImages];
+    const targetIndex = direction === 'left' ? index - 1 : index + 1;
+    
+    if (targetIndex >= 0 && targetIndex < newOrdered.length) {
+      const temp = newOrdered[index];
+      newOrdered[index] = newOrdered[targetIndex];
+      newOrdered[targetIndex] = temp;
+      setOrderedImages(newOrdered);
+    }
+  }
+
+  function moveNewImage(index: number, direction: 'left' | 'right') {
+    const newFiles = [...newImages];
+    const newUrls = [...previewUrls];
+    const targetIndex = direction === 'left' ? index - 1 : index + 1;
+
+    if (targetIndex >= 0 && targetIndex < newFiles.length) {
+      // Swap files
+      const tempFile = newFiles[index];
+      newFiles[index] = newFiles[targetIndex];
+      newFiles[targetIndex] = tempFile;
+      
+      // Swap urls
+      const tempUrl = newUrls[index];
+      newUrls[index] = newUrls[targetIndex];
+      newUrls[targetIndex] = tempUrl;
+
+      setNewImages(newFiles);
+      setPreviewUrls(newUrls);
+    }
+  }
+
   async function handleFormSubmit(formData: FormData) {
     setSaving(true);
     setFormError(null);
     setFieldErrors({});
+    const toastId = toast.loading(editingProperty ? "Memperbarui properti..." : "Menerbitkan properti...");
     try {
       // Append new images from state
       newImages.forEach(file => {
         formData.append("images", file);
       });
+
+      // Append image order for existing images
+      if (editingProperty) {
+        formData.append("image_order", JSON.stringify(orderedImages.map(img => img.id)));
+      }
 
       let result;
       if (editingProperty) {
@@ -499,19 +611,19 @@ export function PropertyTable({ properties, agentPhone }: { properties: Property
 
       if (result?.fieldErrors) {
         setFieldErrors(result.fieldErrors);
-        toast.error("Mohon perbaiki kesalahan pada form");
+        toast.error("Mohon perbaiki kesalahan pada form", { id: toastId });
       } else if (result?.error) {
         setFormError(result.error);
-        toast.error(result.error);
+        toast.error(result.error, { id: toastId });
       } else {
-        toast.success(editingProperty ? "Properti berhasil diperbarui" : "Properti berhasil ditambahkan");
+        toast.success(editingProperty ? "Properti berhasil diperbarui" : "Properti berhasil ditambahkan", { id: toastId });
         closeDialog();
         router.refresh();
       }
     } catch (e) {
       const msg = "Terjadi kesalahan sistem. Silakan coba lagi.";
       setFormError(msg);
-      toast.error(msg);
+      toast.error(msg, { id: toastId });
     } finally {
       setSaving(false);
     }
@@ -565,6 +677,9 @@ export function PropertyTable({ properties, agentPhone }: { properties: Property
                   defaultValues={editingProperty}
                   formError={formError}
                   fieldErrors={fieldErrors}
+                  orderedImages={orderedImages}
+                  onMoveExistingImage={moveExistingImage}
+                  onMoveNewImage={moveNewImage}
                   existingImages={editingProperty?.property_images || []}
                   handleDeleteImage={handleDeleteImage}
                   deletingImage={deletingImage}
