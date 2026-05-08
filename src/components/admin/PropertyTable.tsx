@@ -40,7 +40,7 @@ interface PropertyRow {
   is_sold?: boolean;
   is_featured?: boolean;
   agent_whatsapp?: string;
-  property_images?: { id: string, image_url: string }[];
+  property_images?: { id: string; image_url: string; position: number }[];
   images?: string[];
   land_area?: number;
   building_area?: number;
