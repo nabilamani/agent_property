@@ -89,7 +89,7 @@ export function PropertyListing({ initialProperties, agentPhone, typeFilter }: P
         </div>
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12 max-w-7xl">
+      <div className="container mx-auto px-2 md:px-6 lg:px-8 py-8 md:py-12 max-w-[1600px]">
         {/* Categories Horizontal Scroll */}
         <div className="mb-10 -mx-4 px-4 overflow-x-auto no-scrollbar scroll-smooth">
           <div className="flex items-start gap-4 md:gap-8 min-w-max pb-2 md:justify-center">
@@ -176,7 +176,7 @@ export function PropertyListing({ initialProperties, agentPhone, typeFilter }: P
 
         {/* Grid System */}
         {filteredProperties.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {filteredProperties.map((property) => (
               <PropertyCard
                 key={property.id}
