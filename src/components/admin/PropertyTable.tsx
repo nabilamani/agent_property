@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, Search, Loader2, Filter, ChevronDown, MoreHorizontal, ImagePlus, X, Star, AlertTriangle, ChevronLeft, ChevronRight, ArrowUp } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Loader2, Filter, ChevronDown, MoreHorizontal, ImagePlus, X, Star, AlertTriangle, ChevronLeft, ChevronRight, ArrowUp, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,6 +29,78 @@ import { formatCurrency, cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { createProperty, updateProperty, deleteProperty, deletePropertyImage, toggleFeaturedProperty } from "@/app/actions/properties";
 import { compressImage } from "@/lib/image-compression";
+import { generatePropertyDetails } from "@/app/actions/ai";
+
+function AILisitingAssistant({ onGenerated }: { onGenerated: (data: any) => void }) {
+  const [rawText, setRawText] = useState("");
+  const [generating, setGenerating] = useState(false);
+
+  async function handleGenerate() {
+    if (!rawText.trim()) {
+      toast.error("Masukkan teks mentah terlebih dahulu");
+      return;
+    }
+
+    setGenerating(true);
+    const toastId = toast.loading("AI sedang menganalisis teks Anda...");
+
+    try {
+      const result = await generatePropertyDetails(rawText);
+      if (result.error) {
+        toast.error(result.error, { id: toastId });
+      } else {
+        onGenerated(result.data);
+        toast.success("Data properti berhasil di-generate!", { id: toastId });
+      }
+    } catch (error) {
+      toast.error("Terjadi kesalahan teknis", { id: toastId });
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  return (
+    <div className="mb-10 p-8 rounded-[2.5rem] bg-gradient-to-br from-primary/[0.03] to-primary/[0.08] border border-primary/10 shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-inner">
+          <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+        </div>
+        <div>
+          <h4 className="text-xl font-black tracking-tight text-foreground uppercase">AI Listing Assistant</h4>
+          <p className="text-xs font-bold text-muted-foreground/80 uppercase tracking-widest mt-0.5">Generate detail otomatis dari teks mentah</p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <Textarea
+          placeholder="Tempel deskripsi berantakan di sini... (Contoh: Jual rumah di Jaksel, Kebayoran Baru, luas 200/150, harga 5M nego, kondisi baru gres, ada kolam renang...)"
+          className="min-h-[150px] rounded-[1.5rem] border-none bg-background shadow-inner focus:ring-primary/20 transition-all p-5 text-sm font-medium leading-relaxed resize-none"
+          value={rawText}
+          onChange={(e) => setRawText(e.target.value)}
+        />
+        
+        <Button 
+          type="button" 
+          disabled={generating}
+          onClick={handleGenerate}
+          className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20 transition-all hover:scale-[1.01] active:scale-95 bg-primary text-primary-foreground"
+        >
+          {generating ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Menganalisis Data...
+            </>
+          ) : (
+            <>
+              <Sparkles className="mr-2 h-5 w-5" />
+              Generate Detail Properti
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 interface PropertyRow {
   id: string;
@@ -410,6 +482,9 @@ export function PropertyTable({ properties, agentPhone }: { properties: Property
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [propertyToDelete, setPropertyToDelete] = useState<string | null>(null);
   const [orderedImages, setOrderedImages] = useState<any[]>([]);
+  const [aiData, setAIData] = useState<any>(null);
+  const [aiGenerationCount, setAiGenerationCount] = useState(0);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
 
   // Update orderedImages when editingProperty changes
   useEffect(() => {
@@ -638,6 +713,7 @@ export function PropertyTable({ properties, agentPhone }: { properties: Property
     setPreviewUrls([]);
     setFormError(null);
     setFieldErrors({});
+    setAIData(null);
   }
 
   return (
@@ -671,10 +747,36 @@ export function PropertyTable({ properties, agentPhone }: { properties: Property
                 </DialogDescription>
               </DialogHeader>
 
+              {!editingProperty && (
+                <div className="mb-8">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setShowAIAssistant(!showAIAssistant)}
+                    className={cn(
+                      "w-full h-14 rounded-2xl border-dashed border-2 transition-all gap-2 font-bold",
+                      showAIAssistant ? "bg-primary/5 border-primary text-primary" : "hover:border-primary/50"
+                    )}
+                  >
+                    <Sparkles className={cn("h-5 w-5", showAIAssistant && "fill-primary")} />
+                    {showAIAssistant ? "Sembunyikan AI Assistant" : "Gunakan AI Listing Assistant (Generate Otomatis)"}
+                  </Button>
+                  
+                  {showAIAssistant && (
+                    <div className="mt-4 p-1 bg-gradient-to-b from-primary/10 to-transparent rounded-[2.5rem] animate-in fade-in slide-in-from-top-4 duration-500">
+                      <AILisitingAssistant onGenerated={(data) => {
+                        setAIData(data);
+                        setAiGenerationCount(prev => prev + 1);
+                      }} />
+                    </div>
+                  )}
+                </div>
+              )}
+
               <form action={handleFormSubmit} className="space-y-10">
                 <PropertyForm 
-                  key={editingProperty?.id || "new"}
-                  defaultValues={editingProperty}
+                  key={editingProperty?.id || `new-${aiGenerationCount}`}
+                  defaultValues={editingProperty || aiData}
                   formError={formError}
                   fieldErrors={fieldErrors}
                   orderedImages={orderedImages}
