@@ -170,7 +170,7 @@ function PropertyForm({
             name="title" 
             placeholder="Contoh: Rumah Minimalis Modern di Pusat Kota"
             defaultValue={defaultValues?.title} 
-            className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
+            className="w-full h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
             required 
           />
           {fieldErrors.title && <p className="text-[10px] text-destructive font-bold mt-1.5 ml-1 animate-in fade-in slide-in-from-top-1">{fieldErrors.title}</p>}
@@ -183,7 +183,7 @@ function PropertyForm({
             type="number" 
             placeholder="Masukkan nominal harga"
             defaultValue={defaultValues?.price} 
-            className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
+            className="w-full h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
             required 
           />
           {fieldErrors.price && <p className="text-[10px] text-destructive font-bold mt-1.5 ml-1 animate-in fade-in slide-in-from-top-1">{fieldErrors.price}</p>}
@@ -211,7 +211,7 @@ function PropertyForm({
             name="address" 
             placeholder="Nama jalan, nomor, RT/RW, Kecamatan, Kota"
             defaultValue={defaultValues?.address} 
-            className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
+            className="w-full h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
             required 
           />
           {fieldErrors.address && <p className="text-[10px] text-destructive font-bold mt-1.5 ml-1 animate-in fade-in slide-in-from-top-1">{fieldErrors.address}</p>}
@@ -224,7 +224,7 @@ function PropertyForm({
             type="number" 
             placeholder="0"
             defaultValue={defaultValues?.land_area || 0} 
-            className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
+            className="w-full h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
           />
         </div>
         <div className="space-y-2">
@@ -235,7 +235,7 @@ function PropertyForm({
             type="number" 
             placeholder="0"
             defaultValue={defaultValues?.building_area || 0} 
-            className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
+            className="w-full h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
           />
         </div>
         <div className="space-y-2">
@@ -288,7 +288,7 @@ function PropertyForm({
             name="agent_whatsapp" 
             value={editingProperty ? editingProperty.agent_whatsapp : agentPhone} 
             readOnly
-            className="h-12 rounded-2xl bg-muted/40 border-1 cursor-not-allowed font-bold" 
+            className="w-full h-12 rounded-2xl bg-muted/40 border-1 cursor-not-allowed font-bold" 
           />
         </div>
         <div className="space-y-2">
@@ -298,7 +298,7 @@ function PropertyForm({
             name="owner_whatsapp" 
             placeholder="Contoh: 6281234567890"
             defaultValue={defaultValues?.owner_whatsapp || ""} 
-            className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
+            className="w-full h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90" 
           />
         </div>
         <div className="md:col-span-2 space-y-2">
@@ -308,7 +308,7 @@ function PropertyForm({
             name="map_url" 
             defaultValue={defaultValues?.map_url || ""} 
             placeholder="Paste kode <iframe> atau URL maps di sini"
-            className="h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90"
+            className="w-full h-12 rounded-2xl bg-muted/20 border-1 focus:bg-background transition-all placeholder:text-muted-foreground/90"
           />
         </div>
         <div className="md:col-span-2 space-y-2">
@@ -318,7 +318,7 @@ function PropertyForm({
             name="description" 
             placeholder="Tuliskan detail menarik tentang properti ini (misal: bebas banjir, dekat tol, AC gratis, dll)"
             defaultValue={defaultValues?.description || ""} 
-            className="min-h-[150px] rounded-3xl bg-muted/20 border-1 focus:bg-background transition-all p-4 placeholder:text-muted-foreground/60" 
+            className="w-full min-h-[150px] rounded-3xl bg-muted/20 border-1 focus:bg-background transition-all p-4 placeholder:text-muted-foreground/60" 
           />
         </div>
 
@@ -736,13 +736,13 @@ export function PropertyTable({ properties, agentPhone }: { properties: Property
               </Button>
             }
           />
-          <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] overflow-y-auto rounded-[2rem] p-0 border-none shadow-2xl bg-background custom-scrollbar overflow-x-hidden">
-            <div className="p-10 md:p-14">
+          <DialogContent className="max-w-5xl w-[92vw] md:w-[95vw] max-h-[90vh] overflow-y-auto rounded-[2rem] p-0 border-none shadow-2xl bg-background custom-scrollbar overflow-x-hidden">
+            <div className="px-8 py-10 md:p-14">
               <DialogHeader className="mb-10">
-                <DialogTitle className="text-4xl font-black tracking-tight text-foreground">
+                <DialogTitle className="text-2xl md:text-4xl font-black tracking-tight text-foreground">
                   {editingProperty ? "Edit Properti" : "Properti Baru"}
                 </DialogTitle>
-                <DialogDescription className="text-lg font-medium text-muted-foreground/80 mt-2">
+                <DialogDescription className="text-sm md:text-lg font-medium text-muted-foreground/80 mt-2">
                   {editingProperty ? "Perbarui detail unit properti Anda." : "Masukkan detail unit yang akan dipasarkan."}
                 </DialogDescription>
               </DialogHeader>
@@ -754,12 +754,12 @@ export function PropertyTable({ properties, agentPhone }: { properties: Property
                     variant="outline" 
                     onClick={() => setShowAIAssistant(!showAIAssistant)}
                     className={cn(
-                      "w-full h-14 rounded-2xl border-dashed border-2 transition-all gap-2 font-bold",
+                      "w-full h-auto min-h-[3.5rem] py-3 px-4 rounded-2xl border-dashed border-2 transition-all gap-2 font-bold text-xs md:text-sm leading-tight",
                       showAIAssistant ? "bg-primary/5 border-primary text-primary" : "hover:border-primary/50"
                     )}
                   >
                     <Sparkles className={cn("h-5 w-5", showAIAssistant && "fill-primary")} />
-                    {showAIAssistant ? "Sembunyikan AI Assistant" : "Gunakan AI Listing Assistant (Generate Otomatis)"}
+                    {showAIAssistant ? "Sembunyikan AI Assistant" : "AI Listing Assistant (Generate Otomatis)"}
                   </Button>
                   
                   {showAIAssistant && (
