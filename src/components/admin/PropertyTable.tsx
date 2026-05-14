@@ -60,21 +60,21 @@ function AILisitingAssistant({ onGenerated }: { onGenerated: (data: any) => void
   }
 
   return (
-    <div className="mb-10 p-8 rounded-[2.5rem] bg-gradient-to-br from-primary/[0.03] to-primary/[0.08] border border-primary/10 shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
-      <div className="flex items-center gap-4 mb-6">
-        <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-inner">
-          <Sparkles className="h-6 w-6 text-primary animate-pulse" />
+    <div className="p-5 md:p-8 rounded-3xl md:rounded-[2.5rem] bg-gradient-to-br from-primary/[0.03] to-primary/[0.08] border border-primary/10 shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
+      <div className="flex items-center gap-3 md:gap-4 mb-5 md:mb-6">
+        <div className="h-10 w-10 md:h-12 md:w-12 rounded-xl md:rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-inner">
+          <Sparkles className="h-5 w-5 md:h-6 md:w-6 text-primary animate-pulse" />
         </div>
         <div>
-          <h4 className="text-xl font-black tracking-tight text-foreground uppercase">AI Listing Assistant</h4>
-          <p className="text-xs font-bold text-muted-foreground/80 uppercase tracking-widest mt-0.5">Generate detail otomatis dari teks mentah</p>
+          <h4 className="text-sm md:text-2xl font-black tracking-tight text-foreground uppercase">AI Listing Assistant</h4>
+          <p className="text-[10px] md:text-xs font-bold text-muted-foreground/80 uppercase tracking-widest mt-0.5">Generate detail otomatis dari teks mentah</p>
         </div>
       </div>
 
       <div className="space-y-4">
         <Textarea
           placeholder="Tempel deskripsi berantakan di sini... (Contoh: Jual rumah di Jaksel, Kebayoran Baru, luas 200/150, harga 5M nego, kondisi baru gres, ada kolam renang...)"
-          className="min-h-[150px] rounded-[1.5rem] border-none bg-background shadow-inner focus:ring-primary/20 transition-all p-5 text-sm font-medium leading-relaxed resize-none"
+          className="w-full min-h-[120px] md:min-h-[150px] rounded-[1.2rem] md:rounded-[1.5rem] border-none bg-background shadow-inner focus:ring-primary/20 transition-all p-4 md:p-5 text-sm font-medium leading-relaxed resize-none"
           value={rawText}
           onChange={(e) => setRawText(e.target.value)}
         />
@@ -83,7 +83,7 @@ function AILisitingAssistant({ onGenerated }: { onGenerated: (data: any) => void
           type="button" 
           disabled={generating}
           onClick={handleGenerate}
-          className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20 transition-all hover:scale-[1.01] active:scale-95 bg-primary text-primary-foreground"
+          className="w-full h-12 md:h-14 rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs shadow-xl shadow-primary/20 transition-all hover:scale-[1.01] active:scale-95 bg-primary text-primary-foreground"
         >
           {generating ? (
             <>
